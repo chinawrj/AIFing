@@ -8,12 +8,13 @@ Lesson 1: **AI Fundamentals: Model, Token, Context, and Tools**
 
 - [PowerPoint deck](../../decks/lesson-01-ai-fundamentals.pptx)
 - [Presenter guide](presenter-guide.md)
+- [Sources](sources.md)
 
 ## Visual Index
 
 | File | Course Section | Purpose |
 |---|---|---|
-| `assets/01-ai-company-model-product.png` | 1.1 AI Company, AI Model, AI Product | 区分 AI 公司、模型、产品和 Harness / Runtime |
+| `assets/01-ai-company-model-product.png` | 1.1 AI Company, AI Model, AI Tool | 使用表格区分 AI 公司、模型系列、AI 工具 / IDE 和 Harness / Runtime |
 | `assets/02-ai-paper-interaction.png` | 1.2 AI Hello World | 解释用户、纸面上下文与 AI 模型之间的基本互动 |
 | `assets/03-tokenization.png` | 1.3 Token | 解释模型处理 token，而不是直接处理完整自然语言句子 |
 | `assets/04-single-turn-model-input.png` | 1.4 A Single Turn Becomes Model Input | 解释单轮输入如何写入纸面、tokenized 并与上下文合并 |
@@ -28,9 +29,9 @@ Lesson 1: **AI Fundamentals: Model, Token, Context, and Tools**
 
 ## Images
 
-### 1.1 AI Company, AI Model, AI Product
+### 1.1 AI Company, AI Model, AI Tool
 
-![AI Company, AI Model, AI Product](assets/01-ai-company-model-product.png)
+![AI Company, AI Model, AI Tool](assets/01-ai-company-model-product.png)
 
 ### 1.2 AI Hello World
 

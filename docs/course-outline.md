@@ -51,41 +51,47 @@ After this lesson, learners should understand:
 
 ---
 
-## 1.1 AI Company, AI Model, AI Product
+## 1.1 AI Company, AI Model, AI Tool
 
 ### Core idea
 
 Separate the layers:
 
 - **AI Company**: trains, provides, or operates AI models.
-- **AI Model**: generates tokens.
-- **AI Product / App**: the interface users interact with.
-- **Harness / Runtime**: the software layer around the model that manages context, tools, permissions, safety, logging, and control flow.
+- **AI Model / Model Family**: reads context and generates tokens.
+- **AI Tool / IDE / Agentic Coding Product**: the product users operate, such as a coding agent or IDE extension.
+- **Harness / Runtime**: the software layer inside the product that manages context, tools, permissions, safety, logging, and control flow.
 
 ### Suggested explanation
 
 > When we say “I’m using AI,” we are usually not only using a model. We are using a product made of model, context, tools, and traditional software.
 
+Examples:
+
+| Layer | Examples | Do not confuse with |
+|---|---|---|
+| AI Company / Provider | Anthropic, OpenAI | The model itself |
+| Model Family | Claude series, GPT series | The IDE or app |
+| AI Tool / IDE / Agent | Claude Code, Codex, opencode | The model family |
+| Harness / Runtime | The software layer inside tools/products | The AI company |
+
 ### Suggested visual
 
-**AI Product Layer Diagram**
+**AI Layer Map Table**
 
 ```text
-Model
-  ↓
+AI Company / Provider
+Model Family
+AI Tool / IDE / Agent
 Harness / Runtime
-  ↓
-Product Interface
-  ↓
-User
 ```
 
 Side labels:
 
 ```text
 Model generates tokens.
-Harness manages execution.
-Product provides experience.
+Tool / IDE provides the user workflow.
+Harness manages context, tools, permissions, and execution.
 ```
 
 ---
