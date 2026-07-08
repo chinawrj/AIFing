@@ -15,11 +15,9 @@
 │   └── lesson-01/
 │       ├── README.md
 │       └── assets/
-│           ├── 01-ai-paper-interaction.png
-│           ├── 02-tokenization.png
-│           ├── 03-system-prompt.png
-│           ├── 04-tool-use.png
-│           └── 05-context-window.png
+│           ├── 01-ai-company-model-product.png
+│           ├── ...
+│           └── 12-minimal-ai-system-architecture.png
 └── README.md
 ```
 
@@ -31,6 +29,5 @@
 ## Current Status
 
 - Lesson 1 outline is drafted.
-- Five visual assets for Lesson 1 have been added.
+- Twelve visual assets for Lesson 1 have been added.
 - Later lessons can follow the same directory pattern under `docs/lesson-02/`, `docs/lesson-03/`, etc.
-
