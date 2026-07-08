@@ -14,10 +14,13 @@
 │   ├── course-outline.md
 │   └── lesson-01/
 │       ├── README.md
+│       ├── presenter-guide.md
 │       └── assets/
 │           ├── 01-ai-company-model-product.png
 │           ├── ...
 │           └── 12-minimal-ai-system-architecture.png
+├── decks/
+│   └── lesson-01-ai-fundamentals.pptx
 └── README.md
 ```
 
@@ -25,9 +28,13 @@
 
 - [Course outline](docs/course-outline.md)
 - [Lesson 1 assets](docs/lesson-01/README.md)
+- [Lesson 1 presenter guide](docs/lesson-01/presenter-guide.md)
+- [Lesson 1 PowerPoint deck](decks/lesson-01-ai-fundamentals.pptx)
 
 ## Current Status
 
 - Lesson 1 outline is drafted.
 - Twelve visual assets for Lesson 1 have been added.
+- Lesson 1 has a 12-slide PowerPoint deck for training delivery.
+- Lesson 1 has a presenter guide with slide flow and transition notes.
 - Later lessons can follow the same directory pattern under `docs/lesson-02/`, `docs/lesson-03/`, etc.

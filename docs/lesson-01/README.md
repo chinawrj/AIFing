@@ -4,6 +4,11 @@ Lesson 1: **AI Fundamentals: Model, Token, Context, and Tools**
 
 这些图片服务于课程第一部分，用来解释 Paper Model 中的基础概念。
 
+## Training Deliverables
+
+- [PowerPoint deck](../../decks/lesson-01-ai-fundamentals.pptx)
+- [Presenter guide](presenter-guide.md)
+
 ## Visual Index
 
 | File | Course Section | Purpose |
