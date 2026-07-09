@@ -49,6 +49,24 @@ After this lesson, learners should understand:
 - Compacting exists because the paper can become too full.
 - Tools are not directly executed by AI; traditional software parses structured AI output and executes tools.
 
+## Chapter 1.1 Advanced: Visible Paper and Prompt Cache
+
+This is a separate advanced-audience PPT/chapter that extends the Lesson 1 Paper Model without moving into Lesson 2/3 implementation detail.
+
+Advanced learners should understand:
+
+- Each model call is still constructed from the current visible paper/context.
+- Prompt cache can reuse repeated input prefixes, but it does not create memory or enlarge the context window.
+- Cache write/read metrics describe processing and billing signals, not a different visibility rule for the model.
+- Stable content usually belongs earlier in the paper; changing per-turn content belongs later.
+
+Deliverables:
+
+- [Advanced outline](chapter-01-01-advanced/outline.md)
+- [Advanced presenter guide](chapter-01-01-advanced/presenter-guide.md)
+- [Advanced sources](chapter-01-01-advanced/sources.md)
+- [Advanced PowerPoint deck](../decks/chapter-01-01-advanced-context-cache.pptx)
+
 ---
 
 ## 1.1 AI Company, AI Model, AI Tool
