@@ -979,6 +979,15 @@ Workflow System
 
 ---
 
+## Lesson 2 Deliverables
+
+- [Lesson 2 assets](lesson-02/README.md)
+- [Lesson 2 presenter guide](lesson-02/presenter-guide.md)
+- [Lesson 2 sources](lesson-02/sources.md)
+- [Lesson 2 PowerPoint deck](../decks/lesson-02-harness-engineering.pptx)
+
+---
+
 ## Lesson 2 Advanced Add-on: 2.1 Harness Objects and Runtime Contracts
 
 This is a separate advanced-audience PPT/chapter that extends Lesson 2 without
