@@ -1544,6 +1544,15 @@ Loop Coding System
 
 ---
 
+## Lesson 3 Deliverables
+
+- [Lesson 3 assets](lesson-03/README.md)
+- [Lesson 3 presenter guide](lesson-03/presenter-guide.md)
+- [Lesson 3 sources](lesson-03/sources.md)
+- [Lesson 3 PowerPoint deck](../decks/lesson-03-agentic-workflows.pptx)
+
+---
+
 # Course Navigation
 
 ```text

@@ -19,26 +19,33 @@
 │   │       ├── slide-01.png
 │   │       └── ...
 │   ├── lesson-01/
-│       ├── README.md
-│       ├── presenter-guide.md
-│       └── assets/
-│           ├── 01-ai-company-model-product.png
-│           ├── ...
-│           └── 12-minimal-ai-system-architecture.png
+│   │   ├── README.md
+│   │   ├── presenter-guide.md
+│   │   └── assets/
+│   │       ├── 01-ai-company-model-product.png
+│   │       ├── ...
+│   │       └── 12-minimal-ai-system-architecture.png
 │   ├── lesson-02/
 │   │   ├── README.md
 │   │   ├── presenter-guide.md
 │   │   └── assets/
 │   │       ├── slide-01.png
 │   │       └── ...
-│   └── lesson-02-01-advanced/
+│   ├── lesson-02-01-advanced/
 │       ├── outline.md
+│       ├── presenter-guide.md
+│       └── assets/
+│           ├── slide-01.png
+│           └── ...
+│   └── lesson-03/
+│       ├── README.md
 │       ├── presenter-guide.md
 │       └── assets/
 │           ├── slide-01.png
 │           └── ...
 ├── decks/
 │   ├── chapter-01-01-advanced-context-cache.pptx
+│   ├── lesson-03-agentic-workflows.pptx
 │   ├── lesson-02-harness-engineering.pptx
 │   ├── lesson-02-01-advanced-harness-objects.pptx
 │   └── lesson-01-ai-fundamentals.pptx
@@ -61,6 +68,10 @@
 - [Lesson 2 Advanced Add-on outline](docs/lesson-02-01-advanced/outline.md)
 - [Lesson 2 Advanced Add-on presenter guide](docs/lesson-02-01-advanced/presenter-guide.md)
 - [Lesson 2 Advanced Add-on PowerPoint deck](decks/lesson-02-01-advanced-harness-objects.pptx)
+- [Lesson 3 assets](docs/lesson-03/README.md)
+- [Lesson 3 presenter guide](docs/lesson-03/presenter-guide.md)
+- [Lesson 3 sources](docs/lesson-03/sources.md)
+- [Lesson 3 PowerPoint deck](decks/lesson-03-agentic-workflows.pptx)
 
 ## Current Status
 
@@ -71,7 +82,8 @@
 - Lesson 1 Advanced Add-on (`1.1`) adds a 6-slide deck on visible paper, prompt cache, cache write/read, and stable-prefix design.
 - Lesson 2 has a 10-slide PowerPoint deck on harness engineering, instructions, agents, skills, and tool runtime.
 - Lesson 2 Advanced Add-on (`2.1`) adds a 6-slide deck on harness objects and runtime contracts.
-- Later lessons can follow the same directory pattern under `docs/lesson-02/`, `docs/lesson-03/`, etc.
+- Lesson 3 has a 10-slide PowerPoint deck on subagents, workflows, teammate mode, boundaries, and loop coding.
+- Later lessons can follow the same directory pattern under `docs/lesson-04/`, `docs/lesson-05/`, etc.
 
 ## License
 
