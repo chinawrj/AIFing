@@ -49,3 +49,12 @@
 - Lesson 1 has a presenter guide with slide flow and transition notes.
 - Lesson 1 Advanced Add-on (`1.1`) adds a 6-slide deck on visible paper, prompt cache, cache write/read, and stable-prefix design.
 - Later lessons can follow the same directory pattern under `docs/lesson-02/`, `docs/lesson-03/`, etc.
+
+## License
+
+Course materials in `docs/`, `decks/`, and visual assets are licensed under
+[CC BY-SA 4.0](LICENSE-CONTENT). This is the Wikipedia-style open knowledge
+license: free to share and adapt, with attribution and the same license for
+adapted versions.
+
+Code in `scripts/` is licensed under the [MIT License](LICENSE-CODE).
