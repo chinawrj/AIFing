@@ -979,6 +979,32 @@ Workflow System
 
 ---
 
+## Lesson 2 Advanced Add-on: 2.1 Harness Objects and Runtime Contracts
+
+This is a separate advanced-audience PPT/chapter that extends Lesson 2 without
+moving into Lesson 3 workflow orchestration.
+
+Advanced learners should understand:
+
+- Harness engineering is runtime object management, not only prompt writing.
+- The visible paper is assembled from instructions, tools, skills, permissions,
+  agent profiles, observations, and selected state.
+- A tool is an executable contract: name, schema, permission, executor, result
+  shape, and failure path.
+- Skills, tools, agent profiles, permissions, and observations solve different
+  runtime problems.
+- Clear object boundaries keep the paper cleaner, safer, more auditable, and
+  easier to debug.
+
+Deliverables:
+
+- [Advanced outline](lesson-02-01-advanced/outline.md)
+- [Advanced presenter guide](lesson-02-01-advanced/presenter-guide.md)
+- [Advanced sources](lesson-02-01-advanced/sources.md)
+- [Advanced PowerPoint deck](../decks/lesson-02-01-advanced-harness-objects.pptx)
+
+---
+
 # Lesson 3: Agentic Workflows: Subagents, Teammates, and Loop Coding
 
 **Subtitle:** From single-turn Q&A to engineering-grade AI collaboration
