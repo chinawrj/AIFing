@@ -37,9 +37,9 @@
 - [Lesson 1 assets](docs/lesson-01/README.md)
 - [Lesson 1 presenter guide](docs/lesson-01/presenter-guide.md)
 - [Lesson 1 PowerPoint deck](decks/lesson-01-ai-fundamentals.pptx)
-- [Chapter 1.1 Advanced outline](docs/chapter-01-01-advanced/outline.md)
-- [Chapter 1.1 Advanced presenter guide](docs/chapter-01-01-advanced/presenter-guide.md)
-- [Chapter 1.1 Advanced PowerPoint deck](decks/chapter-01-01-advanced-context-cache.pptx)
+- [Lesson 1 Advanced Add-on outline](docs/chapter-01-01-advanced/outline.md)
+- [Lesson 1 Advanced Add-on presenter guide](docs/chapter-01-01-advanced/presenter-guide.md)
+- [Lesson 1 Advanced Add-on PowerPoint deck](decks/chapter-01-01-advanced-context-cache.pptx)
 
 ## Current Status
 
@@ -47,5 +47,5 @@
 - Twelve visual assets for Lesson 1 have been added.
 - Lesson 1 has a 12-slide PowerPoint deck for training delivery.
 - Lesson 1 has a presenter guide with slide flow and transition notes.
-- Chapter 1.1 Advanced adds a 6-slide deck on visible paper, prompt cache, cache write/read, and stable-prefix design.
+- Lesson 1 Advanced Add-on (`1.1`) adds a 6-slide deck on visible paper, prompt cache, cache write/read, and stable-prefix design.
 - Later lessons can follow the same directory pattern under `docs/lesson-02/`, `docs/lesson-03/`, etc.

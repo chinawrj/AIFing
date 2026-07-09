@@ -1,4 +1,4 @@
-# Chapter 1.1 Advanced Sources
+# Lesson 1 Advanced Add-on (1.1) Sources
 
 Accessed: 2026-07-09
 
@@ -17,4 +17,3 @@ Accessed: 2026-07-09
 - Anthropic prompt caching exposes `cache_creation_input_tokens`, `cache_read_input_tokens`, and `input_tokens`.
 - Anthropic Messages API is stateless, so applications send the full conversational history for multi-turn conversations.
 - Anthropic states that cached prompt prefixes still occupy the context window; caching changes token cost/processing, not whether the tokens count as context.
-

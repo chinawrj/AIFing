@@ -49,26 +49,6 @@ After this lesson, learners should understand:
 - Compacting exists because the paper can become too full.
 - Tools are not directly executed by AI; traditional software parses structured AI output and executes tools.
 
-## Chapter 1.1 Advanced: Visible Paper and Prompt Cache
-
-This is a separate advanced-audience PPT/chapter that extends the Lesson 1 Paper Model without moving into Lesson 2/3 implementation detail.
-
-Advanced learners should understand:
-
-- Each model call is still constructed from the current visible paper/context.
-- Prompt cache can reuse repeated input prefixes, but it does not create memory or enlarge the context window.
-- Cache write/read metrics describe processing and billing signals, not a different visibility rule for the model.
-- Stable content usually belongs earlier in the paper; changing per-turn content belongs later.
-
-Deliverables:
-
-- [Advanced outline](chapter-01-01-advanced/outline.md)
-- [Advanced presenter guide](chapter-01-01-advanced/presenter-guide.md)
-- [Advanced sources](chapter-01-01-advanced/sources.md)
-- [Advanced PowerPoint deck](../decks/chapter-01-01-advanced-context-cache.pptx)
-
----
-
 ## 1.1 AI Company, AI Model, AI Tool
 
 ### Core idea
@@ -322,7 +302,7 @@ A long conversation on the left; a fixed window on the right showing only part o
 
 ---
 
-## 1.8 Context Overflow: Older Content Falls Out
+## 1.8 Context Overflow: Choose What Stays Visible
 
 ### Core idea
 
@@ -332,21 +312,26 @@ When the paper is full, the system may:
 - Keep recent content.
 - Select important content.
 - Trigger compacting / summarization.
-- Retrieve external information instead of keeping everything on the paper.
+- Retrieve selected external information and place it back on the paper.
 
 ### Typical consequences
 
-- Early constraints are forgotten.
+- Earlier details or constraints may disappear.
 - Small details are lost.
 - The model repeats questions.
 - The task drifts.
 - Style becomes inconsistent.
 
+### Key phrase
+
+> Context overflow is not about what was once said. It is about what remains visible for this call.
+
 ### Suggested visual
 
 ```text
-Earlier messages → fall out
-Recent messages → stay visible
+Older content → may leave the visible paper
+Selected content → remains visible
+Current message → stays in the call
 ```
 
 ---
@@ -413,30 +398,41 @@ Next step
 
 Not all paper content has equal priority.
 
-Suggested hierarchy:
+Instruction authority:
 
 ```text
 System instructions
 Developer instructions
 User instructions
-User message
-Tool outputs
-Conversation history
 ```
 
 ### Key points
 
 - AI does not simply obey the last sentence.
 - Higher-priority instructions may override lower-priority ones.
-- Good agent design places instructions at the correct level.
+- User messages, conversation history, files, retrieved notes, and tool outputs are context data.
+- Context data can inform the answer, but it should not override higher-priority instructions.
 
 ### Suggested visual
 
-**Instruction Stack / Priority Layers**
+**Authority vs Data**
+
+```text
+Instruction authority:
+System > Developer > User
+```
+
+```text
+Context data:
+User message
+Conversation history
+Files / retrieved notes
+Tool outputs
+```
 
 ---
 
-## 1.11 Tools: AI Writes the Request, Harness Executes
+## 1.11 Tool Use: AI Writes the Request, Harness Executes
 
 ### Core idea
 
@@ -516,7 +512,7 @@ Model reads result and answers
 
 ---
 
-## 1.12 Minimal Engineering Architecture of an AI System
+## 1.12 Minimal AI System Architecture
 
 ### Core idea
 
@@ -555,6 +551,26 @@ Model ↔ Tools
 ```
 
 That would imply the model directly accesses external systems.
+
+---
+
+## Lesson 1 Advanced Add-on: 1.1 Visible Paper and Prompt Cache
+
+This is a separate advanced-audience PPT/chapter that extends the Lesson 1 Paper Model without moving into Lesson 2/3 implementation detail. It keeps the user-requested `1.1` advanced naming, but is presented as an add-on after the core Lesson 1 sequence to avoid colliding with the base `1.1 AI Company, AI Model, AI Tool` section.
+
+Advanced learners should understand:
+
+- Each model call is still constructed from the current visible paper/context.
+- Prompt cache can reuse repeated input prefixes, but it does not create memory or enlarge the context window.
+- Cache write/read metrics describe processing and billing signals, not a different visibility rule for the model.
+- Stable content usually belongs earlier in the paper; changing per-turn content belongs later.
+
+Deliverables:
+
+- [Advanced outline](chapter-01-01-advanced/outline.md)
+- [Advanced presenter guide](chapter-01-01-advanced/presenter-guide.md)
+- [Advanced sources](chapter-01-01-advanced/sources.md)
+- [Advanced PowerPoint deck](../decks/chapter-01-01-advanced-context-cache.pptx)
 
 ---
 

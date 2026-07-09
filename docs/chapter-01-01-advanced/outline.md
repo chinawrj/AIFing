@@ -1,4 +1,4 @@
-# Chapter 1.1 Advanced: Visible Paper and Prompt Cache
+# Lesson 1 Advanced Add-on (1.1): Visible Paper and Prompt Cache
 
 ## Audience
 
@@ -39,4 +39,3 @@ It intentionally does not cover:
 - "Cache can reuse repeated paper sections, but it does not remove them from the paper."
 - "Cache write/read changes processing and billing signals, not what the model is allowed to see."
 - "If content is not in the visible paper, cache does not make the model know it."
-

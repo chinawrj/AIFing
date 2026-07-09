@@ -21,11 +21,11 @@ Lesson 1: **AI Fundamentals: Model, Token, Context, and Tools**
 | `assets/05-system-prompt.png` | 1.5 System Prompt | 解释系统提示词像预先写在纸顶端的规则 |
 | `assets/06-context-everything-visible.png` | 1.6 Context | 解释上下文是模型当前可见的全部纸面内容 |
 | `assets/07-context-window.png` | 1.7 Context Window | 解释上下文窗口是模型当前可见内容的容量限制 |
-| `assets/08-context-overflow.png` | 1.8 Context Overflow | 解释上下文溢出时旧内容会掉出、被选择或被压缩 |
+| `assets/08-context-overflow.png` | 1.8 Context Overflow | 解释上下文溢出时系统会选择本轮仍可见的内容 |
 | `assets/09-compacting-summarization.png` | 1.9 Compacting / Summarization | 解释长历史如何被压缩成摘要卡片以及可能损失的信息 |
-| `assets/10-instruction-hierarchy.png` | 1.10 Instruction Hierarchy | 解释不同层级指令的优先级关系 |
-| `assets/11-tool-use.png` | 1.11 Tools | 解释 AI 写工具请求，Harness 负责验证和执行 |
-| `assets/12-minimal-ai-system-architecture.png` | 1.12 Minimal Engineering Architecture | 解释模型、上下文、Harness 和工具之间的正确架构关系 |
+| `assets/10-instruction-hierarchy.png` | 1.10 Instruction Hierarchy | 区分指令权威层级和上下文数据 |
+| `assets/11-tool-use.png` | 1.11 Tool Use | 解释 AI 写工具请求，Harness 负责验证和执行 |
+| `assets/12-minimal-ai-system-architecture.png` | 1.12 Minimal AI System Architecture | 解释模型、上下文、Harness 和工具之间的正确架构关系 |
 
 ## Images
 
@@ -73,6 +73,6 @@ Lesson 1: **AI Fundamentals: Model, Token, Context, and Tools**
 
 ![Tool Use](assets/11-tool-use.png)
 
-### 1.12 Minimal Engineering Architecture
+### 1.12 Minimal AI System Architecture
 
-![Minimal Engineering Architecture](assets/12-minimal-ai-system-architecture.png)
+![Minimal AI System Architecture](assets/12-minimal-ai-system-architecture.png)

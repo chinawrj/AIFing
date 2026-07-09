@@ -1,4 +1,4 @@
-# Chapter 1.1 Advanced Presenter Guide
+# Lesson 1 Advanced Add-on (1.1) Presenter Guide
 
 ## Narrative
 
@@ -21,4 +21,3 @@ This chapter extends Lesson 1 from conceptual context to deployment reality. The
 - Do not say "the model remembers the cache." Say "the provider reuses processing for repeated input."
 - Cached tokens still represent input/context. They are not outside the paper.
 - The chapter should create curiosity for Lesson 2, but not explain message builders, cache keys, TTLs, or tracing design in detail.
-
