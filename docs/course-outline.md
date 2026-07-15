@@ -593,6 +593,8 @@ Learners should understand:
 - Harness is the software control layer around the model.
 - Harness manages context, instructions, tools, permissions, and execution loops.
 - User instructions, custom agents, and skills are ways to configure the paper and tool environment.
+- Skills and custom agents are ways to package repeated prompt-like instructions so they do not have to be pasted manually each time.
+- Subagents are the next step when a task can branch after a shared starting context. Some runtimes can fork the current paper into each branch; subagent workflow design belongs in Lesson 3.
 - A good AI application is not just a model choice; it is harness design.
 
 ---
@@ -780,6 +782,15 @@ A custom agent is a packaged work environment:
 
 > fixed role + fixed instructions + fixed tools + fixed permissions + fixed task boundary
 
+Another way to say it:
+
+> A custom agent is a reusable custom prompt plus a runtime profile.
+
+It packages repeated prompt-like instructions together with tools, permissions,
+quality standards, and stop conditions. It is not automatically a subagent; it
+becomes part of a subagent workflow only when the runtime starts a separate
+agent run with its own context.
+
 Examples:
 
 - Code Review Agent
@@ -827,6 +838,15 @@ A reusable paper template plus tool environment plus behavior rules.
 
 When a task pattern repeats, do not paste the same long prompt every time. Turn it into a reusable skill.
 
+In Paper Model language:
+
+> A skill is a dynamically loaded custom prompt/manual.
+
+The point is not that the instruction disappears. The point is that the Harness
+can keep the full instruction outside the current paper until the task actually
+needs it. This protects the context budget from every possible checklist,
+template, and convention being loaded at once.
+
 A skill may include:
 
 - Steps
@@ -871,13 +891,49 @@ Skill: Generate API Client
 | Concept | Essence | Paper Model Explanation | Example |
 |---|---|---|---|
 | Tool | External executable capability | AI writes request, Harness executes | Weather, read file, run tests |
-| Skill | Reusable work instruction | Manual placed onto the paper when needed | Code review checklist |
-| Agent | Specialized work unit | Fixed paper template, rules, and tool permissions | Security reviewer |
+| Skill | Dynamically loaded reusable instruction | Manual placed onto the paper only when relevant | Code review checklist |
+| Custom Agent / Agent Profile | Packaged work environment | Reusable custom prompt plus tools, permissions, and task boundary | Security reviewer profile |
+| Subagent | Delegated work instance | Separate paper/context for a bounded local task | Research worker returning a summary |
 | Harness | Operating environment | Manages paper, tools, execution, results | IDE agent runtime |
 
 ### Suggested visual
 
-**Tool vs Skill vs Agent vs Harness**
+**Prompt Extensions and Runtime Boundaries**
+
+### Multi-paper principle
+
+> If one person would need multiple sheets of scratch paper, first ask whether
+> the work can branch after a shared starting point. When it can, fork or brief
+> multiple subagents, let each continue on its own paper, and merge through
+> summaries, artifacts, or checkpoints.
+
+### Reactive compression vs proactive decomposition
+
+> Compaction is a reactive continuity mechanism: one paper becomes crowded, so
+> earlier detail is compressed into a smaller summary. Subagent decomposition
+> is proactive context architecture: plan the branches, give each branch its
+> own paper, and keep detailed local work until the merge boundary.
+
+Compaction can be automatic or manually triggered, so "reactive" is more
+precise than "passive." For work that can be planned into branches, proactive
+decomposition usually preserves more task-specific detail and makes context
+allocation more deliberate. Compaction remains useful inside the main thread
+and inside each subagent when a branch itself becomes long.
+
+Important nuances:
+
+- A forked subagent can inherit the parent thread's starting context. The papers
+  diverge only after the fork, so a large shared prefix is not by itself a
+  reason to keep one agent.
+- A single long-running agent may eventually compact its paper. Compaction
+  preserves continuity through a summary, but details can be compressed away.
+- Multiple papers let branches compact independently and keep detailed local
+  work off the main paper. They still do not enlarge any one model call's
+  context window.
+- The real decision is synchronization frequency and mergeability. If every
+  step needs the latest version of the same changing state, keep one owner or
+  introduce explicit handoff checkpoints; otherwise parallel papers usually
+  help.
 
 ---
 
@@ -963,6 +1019,13 @@ Alternative phrase:
 
 > Prompt controls one message. Harness controls the whole interaction system.
 
+For this lesson, a more specific version is:
+
+> Harness engineering is prompt packaging, prompt selection, and runtime
+> enforcement.
+
+The progression is:
+
 ### Suggested visual
 
 ```text
@@ -970,7 +1033,11 @@ Prompt
   ↓
 Prompt Template
   ↓
-Custom Agent
+User Instructions / Skills
+  ↓
+Custom Agent Profile
+  ↓
+Subagent Bridge
   ↓
 Harness
   ↓
@@ -1138,13 +1205,18 @@ Each subagent has its own small paper, and returns a summary.
    - Restricted directory access.
    - Safe command-only execution.
 
-### Avoid subagents when:
+### Keep one owner, or use sequential handoffs, when:
 
 - The task is very small.
-- Shared context must be continuous.
-- Subtasks are tightly coupled.
-- Merging results costs more than the split saves.
-- The main agent can finish the task simply.
+- Every step needs the latest version of the same changing state.
+- The work cannot expose stable intermediate artifacts or checkpoints.
+- Merging and synchronizing results costs more than the extra context capacity saves.
+- The main agent can finish before compaction becomes a material risk.
+
+Do not use "large shared context" or "tight coupling" as automatic rejection
+rules. A forked subagent can inherit the shared starting context. The practical
+question is whether branches can make useful progress before they must
+synchronize again.
 
 ### Suggested visual
 
@@ -1159,7 +1231,7 @@ Use Subagent
 
 Stay Main Agent
 - small task
-- tightly coupled task
+- constantly changing shared state
 - simple edit
 ```
 
@@ -1617,32 +1689,35 @@ Subagent / Workflow / Teammate / Loop Coding
 
 ## Lesson 2 Images
 
-1. **Model vs Harness**
-   - Model generates tokens; Harness manages environment.
+1. **Lesson 2 Opening**
+   - Harness engineering as prompt packaging, prompt selection, and runtime enforcement.
 
-2. **Harness as Paper Manager**
+2. **Model vs Harness**
+   - Model generates tokens; Harness manages context budget, instructions, tools, and execution.
+
+3. **Harness as Paper Manager**
    - Harness prepares paper, injects rules, reads tool calls, writes results.
 
-3. **Harness Responsibility Wheel**
+4. **Harness Responsibility Control Surface**
    - Context, instructions, tools, validation, execution, observation, loop, logging.
 
-4. **User Instructions as Sticky Notes**
+5. **User Instructions as Persistent Annotations**
    - Long-term preferences attached to the paper.
 
-5. **Custom Agent Template**
-   - Role, goal, tools, permissions, output format.
+6. **Custom Agent as Packaged Custom Prompt**
+   - Reusable prompt-like instructions plus tools, permissions, and boundaries.
 
-6. **Skill Library**
-   - Reusable skill cards.
+7. **Skill as Dynamic Custom Prompt Pack**
+   - Load only the relevant manual into the current paper.
 
-7. **Tool Call Lifecycle**
+8. **Prompt Extensions and Runtime Boundaries**
+   - Prompt, user instructions, skill, custom agent, subagent bridge, and context effect.
+
+9. **Tool Call Lifecycle**
    - Proposed → Parsed → Validated → Executed → Observed → Answered.
 
-8. **Tool / Skill / Agent / Harness Comparison**
-   - Four-way comparison.
-
-9. **From Prompt Engineering to Harness Engineering**
-   - Course summary visual.
+10. **From Prompt Engineering to Harness Engineering**
+    - Prompt loading strategy, runtime enforcement, and bridge to Lesson 2.1 / Lesson 3.
 
 ---
 

@@ -27,7 +27,7 @@ const GRAY = "#f2f5f9";
 const slideMeta = [
   {
     notes:
-      "Open Lesson 2 by connecting back to Lesson 1. A model reads and writes tokens, but a real product needs an operating environment around it. That operating environment is the harness.",
+      "Open Lesson 2 by connecting back to Lesson 1. A model reads and writes tokens, but a real product needs a harness to decide which instructions, tools, skills, and agent profiles enter the current paper.",
   },
   {
     notes:
@@ -47,15 +47,15 @@ const slideMeta = [
   },
   {
     notes:
-      "Define custom agent narrowly. In this lesson, an agent means a reusable work environment in one runtime: role, rules, tools, permissions, task boundary, quality standard, and stop condition. Do not expand into subagents yet.",
+      "Frame a custom agent as a packaged custom prompt plus runtime profile. It is still one work environment unless the runtime starts it as a separate subagent run.",
   },
   {
     notes:
-      "Define skills as reusable manuals. A skill guides how work should be done. It is not itself an executable tool. It should be loaded when relevant, not pasted into every interaction by default.",
+      "Define skills as dynamically loaded custom prompt packs. They are useful because not every possible checklist, example, and convention should be loaded into every context window.",
   },
   {
     notes:
-      "Resolve vocabulary. Tool, skill, agent, and harness solve different problems. This slide prevents learners from using one word for all AI product behavior.",
+      "Resolve prompt-loading strategies. One-off prompts, user instructions, skills, custom agent profiles, and subagents all extend the paper in different ways and with different context costs. A forked subagent may inherit the shared starting paper, but its paper evolves independently after the fork.",
   },
   {
     notes:
@@ -63,7 +63,7 @@ const slideMeta = [
   },
   {
     notes:
-      "Close with the shift from prompt engineering to harness engineering. A prompt controls a message. A harness controls the interaction system. This prepares the audience for the advanced 2.1 add-on and Lesson 3 workflows.",
+      "Close with the shift from writing longer prompts to designing how prompts and prompt-like objects are loaded. Skills protect the current context by loading only when relevant; subagents protect the main context by using a separate paper and returning a summary.",
   },
 ];
 
@@ -123,7 +123,7 @@ function badge(slide, value, { left, top, color = BLUE }) {
 function miniCard(slide, { left, top, width, height, title, body, fill = PALE2, color = BLUE }) {
   shape(slide, { left, top, width, height, fill, line: BORDER, radius: "rounded-lg", shadow: "shadow-sm" });
   text(slide, title, { left: left + 18, top: top + 16, width: width - 36, height: 24, fontSize: 20, color, bold: true, align: "center" });
-  text(slide, body, { left: left + 24, top: top + 52, width: width - 48, height: height - 62, fontSize: 15, color: NAVY, align: "center" });
+  text(slide, body, { left: left + 24, top: top + 52, width: width - 48, height: height - 62, fontSize: 16, color: NAVY, align: "center" });
 }
 
 function slide1(presentation) {
@@ -131,7 +131,7 @@ function slide1(presentation) {
   slide.background.fill = "white";
   text(slide, "Lesson 2", { left: 64, top: 44, width: 260, height: 54, fontSize: 50, color: BLUE, bold: true });
   text(slide, "Harness Engineering", { left: 326, top: 46, width: 710, height: 54, fontSize: 48, color: NAVY, bold: true });
-  text(slide, "Instructions, Agents, Skills, and Tool Runtime", {
+  text(slide, "Custom prompts, skills, subagent bridge, and tool runtime", {
     left: 250,
     top: 116,
     width: 780,
@@ -159,7 +159,7 @@ function slide1(presentation) {
     width: 320,
     height: 300,
     title: "Lesson 2",
-    body: "The harness prepares the paper, exposes tools, checks permission, runs actions, and writes results back.",
+    body: "The harness decides which prompts, skills, tools, and runtime profiles enter the current paper.",
     fill: PALE,
   });
   line(slide, { left: 900, top: 348, width: 110, arrow: true, weight: 4 });
@@ -169,14 +169,14 @@ function slide1(presentation) {
     width: 170,
     height: 260,
     title: "Next",
-    body: "Advanced objects and multi-step workflows.",
+    body: "Subagents, workflows, and loop coding.",
     fill: YELLOW,
     color: ORANGE,
   });
 
   shape(slide, { left: 144, top: 570, width: 992, height: 70, fill: "white", line: BLUE });
   text(slide, "Core idea", { left: 184, top: 591, width: 142, height: 24, fontSize: 22, color: BLUE, bold: true });
-  text(slide, "A model is the token generator. The harness is the operating environment around it.", {
+  text(slide, "Lesson 2 loads the right instruction objects instead of one giant prompt.", {
     left: 350,
     top: 590,
     width: 740,
@@ -233,7 +233,7 @@ function slide3(presentation) {
   const rows = ["System rules", "User message", "Tool definitions", "Conversation state", "Tool results"];
   rows.forEach((row, i) => {
     shape(slide, { left: 516, top: 258 + i * 44, width: 248, height: 30, fill: i % 2 ? PALE : PALE2, line: "#d7e6fb", radius: "rounded-md" });
-    text(slide, row, { left: 536, top: 265 + i * 44, width: 208, height: 16, fontSize: 15, color: NAVY, align: "center", bold: i < 3 });
+    text(slide, row, { left: 536, top: 265 + i * 44, width: 208, height: 16, fontSize: 16, color: NAVY, align: "center", bold: i < 3 });
   });
 
   const nodes = [
@@ -248,7 +248,7 @@ function slide3(presentation) {
     shape(slide, { left, top, width: 300, height: 96, fill: "white", line: color });
     badge(slide, num, { left: left + 18, top: top + 26, color });
     text(slide, title, { left: left + 76, top: top + 20, width: 188, height: 24, fontSize: 21, color, bold: true });
-    text(slide, body, { left: left + 76, top: top + 50, width: 190, height: 20, fontSize: 15, color: NAVY });
+    text(slide, body, { left: left + 76, top: top + 50, width: 190, height: 20, fontSize: 16, color: NAVY });
   });
   line(slide, { left: 376, top: 238, width: 74, arrow: true });
   line(slide, { left: 820, top: 238, width: 58, arrow: true });
@@ -281,12 +281,12 @@ function slide4(presentation) {
     shape(slide, { left, top, width: 538, height: 82, fill: row % 2 ? PALE : PALE2, line: BORDER });
     badge(slide, String(i + 1), { left: left + 18, top: top + 20, color });
     text(slide, title, { left: left + 78, top: top + 16, width: 390, height: 24, fontSize: 20, color, bold: true });
-    text(slide, body, { left: left + 78, top: top + 46, width: 390, height: 18, fontSize: 15, color: NAVY });
+    text(slide, body, { left: left + 78, top: top + 46, width: 390, height: 18, fontSize: 16, color: NAVY });
   });
 
   shape(slide, { left: 174, top: 604, width: 932, height: 50, fill: YELLOW, line: "#f0d891" });
   text(slide, "Engineering test", { left: 208, top: 618, width: 190, height: 22, fontSize: 19, color: ORANGE, bold: true });
-  text(slide, "Can you explain who decided what entered the paper and what was allowed to execute?", {
+  text(slide, "Can you trace who chose the context and who authorized execution?", {
     left: 414,
     top: 618,
     width: 650,
@@ -318,7 +318,7 @@ function slide5(presentation) {
 
   shape(slide, { left: 174, top: 586, width: 932, height: 62, fill: YELLOW, line: "#f0d891" });
   text(slide, "Rule", { left: 214, top: 604, width: 80, height: 24, fontSize: 21, color: ORANGE, bold: true });
-  text(slide, "If it changes by task, put it in the task. If it is sensitive, do not store it as an instruction.", {
+  text(slide, "Task-specific details stay in the task. Sensitive data stays out.", {
     left: 318,
     top: 604,
     width: 740,
@@ -332,51 +332,40 @@ function slide5(presentation) {
 function slide6(presentation) {
   const slide = presentation.slides.add();
   slide.background.fill = "white";
-  header(slide, "A Custom Agent Is a Reusable Work Environment", "It packages rules, tools, limits, and quality standards for a task type.");
+  header(slide, "A Custom Agent Packages a Custom Prompt", "It turns repeated instructions into a reusable runtime profile.");
 
-  shape(slide, { left: 104, top: 176, width: 360, height: 390, fill: PALE2, line: BLUE });
-  text(slide, "Prompt", { left: 176, top: 214, width: 216, height: 34, fontSize: 32, color: BLUE, bold: true, align: "center" });
-  text(slide, "A temporary request written on the current paper.", {
-    left: 150,
-    top: 286,
-    width: 268,
-    height: 58,
-    fontSize: 22,
-    color: NAVY,
-    align: "center",
-  });
-  text(slide, "Good for one task.", { left: 162, top: 430, width: 244, height: 24, fontSize: 20, color: BLUE, bold: true, align: "center" });
-
-  line(slide, { left: 488, top: 370, width: 102, arrow: true, weight: 4 });
-
-  shape(slide, { left: 616, top: 150, width: 560, height: 444, fill: PALE, line: GREEN });
-  text(slide, "Custom Agent", { left: 720, top: 184, width: 352, height: 36, fontSize: 34, color: GREEN, bold: true, align: "center" });
-  const parts = [
-    ["Role", "what this agent is for"],
-    ["Instructions", "standing rules and style"],
-    ["Tools", "what can be called"],
-    ["Permissions", "what needs approval"],
-    ["Task boundary", "what it should refuse or stop"],
-    ["Quality standard", "how done is judged"],
+  const stages = [
+    ["One-off prompt", "temporary task request", BLUE, PALE2],
+    ["Prompt template", "repeatable wording", ORANGE, YELLOW],
+    ["Custom agent", "packaged role, rules,\ntools, permissions", GREEN, PALE],
   ];
-  parts.forEach(([k, v], i) => {
-    const left = 662 + (i % 2) * 246;
-    const top = 252 + Math.floor(i / 2) * 76;
-    shape(slide, { left, top, width: 218, height: 54, fill: "white", line: "#b8dec8", radius: "rounded-md" });
-    text(slide, k, { left: left + 18, top: top + 8, width: 182, height: 18, fontSize: 16, color: GREEN, bold: true, align: "center" });
-    text(slide, v, { left: left + 18, top: top + 29, width: 182, height: 16, fontSize: 13, color: NAVY, align: "center" });
+  stages.forEach(([title, body, color, fill], i) => {
+    const left = 90 + i * 392;
+    const top = i === 2 ? 174 : 214;
+    const height = i === 2 ? 330 : 190;
+    shape(slide, { left, top, width: 300, height, fill, line: color });
+    text(slide, title, { left: left + 28, top: top + 28, width: 244, height: 30, fontSize: 26, color, bold: true, align: "center" });
+    text(slide, body, { left: left + 36, top: top + 82, width: 228, height: 62, fontSize: 19, color: NAVY, align: "center" });
+    if (i < stages.length - 1) line(slide, { left: left + 318, top: 320, width: 58, arrow: true, weight: 4 });
   });
 
-  shape(slide, { left: 176, top: 622, width: 928, height: 42, fill: YELLOW, line: "#f0d891" });
-  text(slide, "Lesson boundary: this is one runtime profile, not a Lesson 3 subagent workflow.", {
-    left: 220,
-    top: 633,
-    width: 840,
-    height: 18,
-    fontSize: 17,
+  const parts = ["Role", "Rules", "Tools", "Access", "Boundary", "Stop"];
+  parts.forEach((k, i) => {
+    const left = 892 + (i % 2) * 126;
+    const top = 354 + Math.floor(i / 2) * 50;
+    shape(slide, { left, top, width: 112, height: 38, fill: "white", line: "#b8dec8", radius: "rounded-md" });
+    text(slide, k, { left: left + 6, top: top + 10, width: 100, height: 18, fontSize: 16, color: GREEN, bold: true, align: "center" });
+  });
+
+  shape(slide, { left: 142, top: 606, width: 996, height: 52, fill: YELLOW, line: "#f0d891" });
+  text(slide, "Boundary", { left: 178, top: 622, width: 126, height: 22, fontSize: 20, color: ORANGE, bold: true });
+  text(slide, "A profile becomes a subagent only when the runtime starts a separate run.", {
+    left: 324,
+    top: 622,
+    width: 760,
+    height: 22,
+    fontSize: 18,
     color: NAVY,
-    bold: true,
-    align: "center",
   });
   return slide;
 }
@@ -384,43 +373,45 @@ function slide6(presentation) {
 function slide7(presentation) {
   const slide = presentation.slides.add();
   slide.background.fill = "white";
-  header(slide, "A Skill Is a Reusable Manual Loaded When Relevant", "It teaches the runtime how to do a repeated task pattern.");
+  header(slide, "A Skill Is a Dynamic Custom Prompt Pack", "Load the relevant manual only when the task needs it.");
 
-  shape(slide, { left: 74, top: 170, width: 354, height: 370, fill: PALE2, line: BLUE });
-  text(slide, "Repeated task", { left: 124, top: 206, width: 254, height: 30, fontSize: 28, color: BLUE, bold: true, align: "center" });
-  ["Debug an error", "Review a PR", "Write tests", "Generate docs"].forEach((item, i) => {
-    shape(slide, { left: 126, top: 270 + i * 48, width: 250, height: 34, fill: "white", line: BORDER, radius: "rounded-md" });
-    text(slide, item, { left: 150, top: 278 + i * 48, width: 202, height: 18, fontSize: 16, color: NAVY, align: "center" });
+  shape(slide, { left: 68, top: 172, width: 330, height: 350, fill: "#fff5f5", line: "#f0b5b5" });
+  text(slide, "Bad loading", { left: 112, top: 206, width: 242, height: 30, fontSize: 28, color: RED, bold: true, align: "center" });
+  ["Debug checklist", "Review checklist", "Docs template", "Deploy rules", "API conventions"].forEach((item, i) => {
+    shape(slide, { left: 112, top: 262 + i * 46, width: 242, height: 30, fill: "white", line: "#f0b5b5", radius: "rounded-md" });
+    text(slide, item, { left: 132, top: 269 + i * 46, width: 202, height: 16, fontSize: 16, color: NAVY, align: "center" });
+  });
+  text(slide, "Everything is pasted into every turn.", { left: 108, top: 474, width: 250, height: 24, fontSize: 17, color: RED, bold: true, align: "center" });
+
+  line(slide, { left: 426, top: 348, width: 84, arrow: true, weight: 4 });
+
+  shape(slide, { left: 540, top: 154, width: 286, height: 386, fill: YELLOW, line: "#f0d891" });
+  text(slide, "Skill registry", { left: 586, top: 188, width: 194, height: 30, fontSize: 28, color: ORANGE, bold: true, align: "center" });
+  ["detect task", "select skill", "render instructions", "include examples", "keep unused skills out"].forEach((item, i) => {
+    text(slide, `${i + 1}. ${item}`, { left: 604, top: 258 + i * 42, width: 178, height: 20, fontSize: 17, color: NAVY });
   });
 
-  line(slide, { left: 454, top: 354, width: 92, arrow: true, weight: 4 });
+  line(slide, { left: 856, top: 348, width: 84, arrow: true, weight: 4 });
 
-  shape(slide, { left: 572, top: 148, width: 330, height: 414, fill: YELLOW, line: "#f0d891" });
-  text(slide, "Skill", { left: 630, top: 184, width: 214, height: 36, fontSize: 34, color: ORANGE, bold: true, align: "center" });
-  ["Steps", "Checklist", "Output template", "Examples", "Tool guidance", "Project conventions"].forEach((item, i) => {
-    text(slide, `- ${item}`, { left: 650, top: 250 + i * 42, width: 210, height: 20, fontSize: 18, color: NAVY });
-  });
-
-  line(slide, { left: 928, top: 354, width: 92, arrow: true, weight: 4 });
-
-  shape(slide, { left: 1046, top: 170, width: 160, height: 370, fill: PALE, line: GREEN });
-  text(slide, "Paper", { left: 1082, top: 210, width: 90, height: 30, fontSize: 28, color: GREEN, bold: true, align: "center" });
-  text(slide, "Only the relevant manual should be placed into the current context.", {
-    left: 1074,
-    top: 294,
-    width: 104,
-    height: 120,
-    fontSize: 18,
+  shape(slide, { left: 970, top: 172, width: 242, height: 350, fill: PALE, line: GREEN });
+  text(slide, "Current paper", { left: 1004, top: 206, width: 174, height: 30, fontSize: 26, color: GREEN, bold: true, align: "center" });
+  text(slide, "Only the skill needed for this task enters the context window.", {
+    left: 1004,
+    top: 288,
+    width: 174,
+    height: 92,
+    fontSize: 20,
     color: NAVY,
     align: "center",
   });
+  text(slide, "Unused prompts stay outside.", { left: 1000, top: 430, width: 182, height: 44, fontSize: 18, color: GREEN, bold: true, align: "center" });
 
-  shape(slide, { left: 174, top: 604, width: 932, height: 50, fill: PALE2, line: BLUE });
-  text(slide, "Practical point", { left: 210, top: 618, width: 180, height: 22, fontSize: 19, color: BLUE, bold: true });
-  text(slide, "Skills reduce repeated prompt copying, but always-loaded skills still consume context.", {
-    left: 410,
+  shape(slide, { left: 142, top: 604, width: 996, height: 50, fill: PALE2, line: BLUE });
+  text(slide, "Context budget", { left: 178, top: 618, width: 180, height: 22, fontSize: 19, color: BLUE, bold: true });
+  text(slide, "A skill saves attention by loading just-in-time. If always loaded, it still spends tokens.", {
+    left: 378,
     top: 618,
-    width: 650,
+    width: 710,
     height: 22,
     fontSize: 18,
     color: NAVY,
@@ -431,38 +422,48 @@ function slide7(presentation) {
 function slide8(presentation) {
   const slide = presentation.slides.add();
   slide.background.fill = "white";
-  header(slide, "Tool, Skill, Agent, and Harness Are Different", "Use the right word for the right runtime responsibility.");
+  header(slide, "Prompt Extensions Load Context in Different Ways", "The harness decides what stays global, loads on demand, or gets its own paper.");
 
-  const headers = ["Concept", "Essence", "Paper Model meaning", "Example"];
-  const colX = [70, 230, 510, 870];
-  const colW = [136, 248, 326, 320];
+  const headers = ["Object", "What it extends", "Loading strategy", "Context effect"];
+  const colX = [66, 232, 502, 842];
+  const colW = [140, 240, 300, 336];
   shape(slide, { left: 58, top: 162, width: 1164, height: 46, fill: BLUE, line: BLUE });
   headers.forEach((h, i) => {
     text(slide, h, { left: colX[i] + 8, top: 175, width: colW[i] - 16, height: 20, fontSize: 16, color: "white", bold: true, align: i === 0 ? "center" : "left" });
   });
   const rows = [
-    ["Tool", "External executable capability", "Model proposes; runtime executes", "read file, weather, run tests"],
-    ["Skill", "Reusable work instruction", "Manual placed on paper when relevant", "code review checklist"],
-    ["Agent", "Packaged work environment", "Fixed role, tools, limits, standards", "security reviewer"],
-    ["Harness", "Operating environment", "Manages paper, execution, results", "IDE agent runtime"],
+    ["Prompt", "one task request", "written now", "uses current paper"],
+    ["User instruction", "stable preference", "attached persistently", "always costs attention when included"],
+    ["Skill", "reusable method", "loaded when relevant", "keeps unused prompts outside"],
+    ["Custom agent", "role + rules + tools", "selected as a profile", "packages repeated work setup"],
+    ["Subagent bridge", "local task context", "fork or fresh run", "copies shared start, then diverges"],
   ];
   rows.forEach((row, r) => {
-    const top = 210 + r * 86;
-    shape(slide, { left: 58, top, width: 1164, height: 76, fill: r % 2 ? PALE : PALE2, line: BORDER, radius: "rounded-md" });
+    const top = 210 + r * 70;
+    shape(slide, { left: 58, top, width: 1164, height: 62, fill: r % 2 ? PALE : PALE2, line: BORDER, radius: "rounded-md" });
     row.forEach((v, i) => {
-      text(slide, v, { left: colX[i] + 8, top: top + 19, width: colW[i] - 16, height: 32, fontSize: 16, color: i === 0 ? BLUE : NAVY, bold: i === 0, align: i === 0 ? "center" : "left" });
+      text(slide, v, { left: colX[i] + 8, top: top + 16, width: colW[i] - 16, height: 28, fontSize: 16, color: i === 0 ? BLUE : NAVY, bold: i === 0, align: i === 0 ? "center" : "left" });
     });
   });
 
-  shape(slide, { left: 160, top: 592, width: 960, height: 58, fill: YELLOW, line: "#f0d891" });
-  text(slide, "Common mistake", { left: 198, top: 610, width: 190, height: 22, fontSize: 19, color: ORANGE, bold: true });
-  text(slide, "Calling every AI product feature an agent hides the actual engineering boundary.", {
+  shape(slide, { left: 142, top: 572, width: 996, height: 92, fill: YELLOW, line: "#f0d891" });
+  text(slide, "Context architecture", { left: 178, top: 588, width: 210, height: 22, fontSize: 19, color: ORANGE, bold: true });
+  text(slide, "Compaction reacts: compress one paper as it nears its limit.", {
     left: 408,
-    top: 610,
-    width: 670,
-    height: 22,
+    top: 584,
+    width: 690,
+    height: 24,
     fontSize: 18,
     color: NAVY,
+  });
+  text(slide, "Proactive fork: copy the shared start, then assign one paper per branch.", {
+    left: 408,
+    top: 620,
+    width: 690,
+    height: 24,
+    fontSize: 17,
+    color: NAVY,
+    bold: true,
   });
   return slide;
 }
@@ -482,10 +483,10 @@ function slide9(presentation) {
   ];
   steps.forEach(([title, body, color], i) => {
     const x = 58 + i * 202;
-    shape(slide, { left: x, top: 190, width: 160, height: 150, fill: i % 2 ? PALE : PALE2, line: color });
+    shape(slide, { left: x, top: 190, width: 160, height: 172, fill: i % 2 ? PALE : PALE2, line: color });
     badge(slide, String(i + 1), { left: x + 59, top: 212, color });
     text(slide, title, { left: x + 18, top: 266, width: 124, height: 24, fontSize: 19, color, bold: true, align: "center" });
-    text(slide, body, { left: x + 20, top: 296, width: 120, height: 36, fontSize: 14, color: NAVY, align: "center" });
+    text(slide, body, { left: x + 20, top: 296, width: 120, height: 54, fontSize: 16, color: NAVY, align: "center" });
     if (i < steps.length - 1) line(slide, { left: x + 166, top: 265, width: 30, arrow: true, weight: 2 });
   });
 
@@ -530,25 +531,28 @@ function slide9(presentation) {
 function slide10(presentation) {
   const slide = presentation.slides.add();
   slide.background.fill = "white";
-  header(slide, "Harness Engineering Turns Prompts Into Systems", "A prompt controls one message. A harness controls the interaction system.");
+  header(slide, "Harness Engineering Turns Prompts Into Loading Strategy", "A prompt controls one message. The harness controls which prompts enter which paper.");
 
   const ladder = [
-    ["Prompt", "single request"],
-    ["Prompt template", "repeatable wording"],
-    ["Custom agent", "fixed role and tool environment"],
-    ["Harness", "context, tools, permission, loop"],
-    ["Workflow system", "multi-step and multi-agent orchestration"],
+    ["Prompt", "one request"],
+    ["User instructions", "stable prefs"],
+    ["Skill", "dynamic prompt pack"],
+    ["Custom agent", "profile with role, tools, limits"],
+    ["Subagent", "local task on separate paper"],
+    ["Workflow", "orchestrated multi-step system"],
   ];
   ladder.forEach(([title, body], i) => {
-    const width = 260 + i * 115;
-    const left = 510 - i * 56;
-    const top = 166 + i * 70;
-    shape(slide, { left, top, width, height: 52, fill: i === 3 ? PALE : PALE2, line: i === 3 ? BLUE : BORDER, radius: "rounded-md" });
-    text(slide, title, { left: left + 24, top: top + 8, width: 230, height: 18, fontSize: 17, color: i === 3 ? BLUE : NAVY, bold: true });
-    text(slide, body, { left: left + 280, top: top + 10, width: Math.max(180, width - 310), height: 18, fontSize: 15, color: NAVY });
+    const width = 276 + i * 84;
+    const left = 508 - i * 42;
+    const top = 144 + i * 60;
+    const highlight = i === 2 || i === 4;
+    shape(slide, { left, top, width, height: 48, fill: highlight ? PALE : PALE2, line: highlight ? BLUE : BORDER, radius: "rounded-md" });
+    const bodyOffset = i === 0 ? 150 : 190;
+    text(slide, title, { left: left + 22, top: top + 7, width: bodyOffset - 34, height: 18, fontSize: 16, color: highlight ? BLUE : NAVY, bold: true });
+    text(slide, body, { left: left + bodyOffset, top: top + 8, width: width - bodyOffset - 20, height: 18, fontSize: 16, color: NAVY });
   });
 
-  shape(slide, { left: 82, top: 530, width: 504, height: 92, fill: YELLOW, line: "#f0d891" });
+  shape(slide, { left: 82, top: 540, width: 504, height: 92, fill: YELLOW, line: "#f0d891" });
   text(slide, "Lesson 2.1", { left: 124, top: 554, width: 150, height: 24, fontSize: 21, color: ORANGE, bold: true });
   text(slide, "Advanced add-on: runtime objects and executable contracts.", {
     left: 292,
@@ -559,9 +563,9 @@ function slide10(presentation) {
     color: NAVY,
   });
 
-  shape(slide, { left: 694, top: 530, width: 504, height: 92, fill: PALE, line: GREEN });
+  shape(slide, { left: 694, top: 540, width: 504, height: 92, fill: PALE, line: GREEN });
   text(slide, "Lesson 3", { left: 736, top: 554, width: 130, height: 24, fontSize: 21, color: GREEN, bold: true });
-  text(slide, "Next step: subagents, workflows, teammates, and loop coding.", {
+  text(slide, "Next step: subagent workflows, teammates, and loop coding.", {
     left: 884,
     top: 554,
     width: 270,

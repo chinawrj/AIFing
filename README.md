@@ -80,7 +80,7 @@
 - Lesson 1 has a 12-slide PowerPoint deck for training delivery.
 - Lesson 1 has a presenter guide with slide flow and transition notes.
 - Lesson 1 Advanced Add-on (`1.1`) adds a 6-slide deck on visible paper, prompt cache, cache write/read, and stable-prefix design.
-- Lesson 2 has a 10-slide PowerPoint deck on harness engineering, instructions, agents, skills, and tool runtime.
+- Lesson 2 has a 10-slide PowerPoint deck on harness engineering, prompt loading strategy, skills, custom agent profiles, subagent bridge, and tool runtime.
 - Lesson 2 Advanced Add-on (`2.1`) adds a 6-slide deck on harness objects and runtime contracts.
 - Lesson 3 has a 10-slide PowerPoint deck on subagents, workflows, teammate mode, boundaries, and loop coding.
 - Later lessons can follow the same directory pattern under `docs/lesson-04/`, `docs/lesson-05/`, etc.
