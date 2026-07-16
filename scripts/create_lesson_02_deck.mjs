@@ -30,50 +30,19 @@ const RED = "#cc2b2b";
 const RED_PALE = "#fff5f5";
 const PURPLE = "#6b4aa1";
 const PURPLE_PALE = "#f3edff";
-const GRAY = "#f2f5f9";
 const MID = "#53637a";
 
 const slideMeta = [
-  {
-    notes:
-      "Open by connecting directly to Lesson 1. Lesson 1 taught that the model reads one visible paper. Lesson 2 asks how we scale the prompts that prepare that paper without pasting every rule into every turn.",
-  },
-  {
-    notes:
-      "Make the pain concrete. Custom prompts work, but repeated copying creates token cost, drift, duplication, and maintenance problems. This sets up the need for packaging, splitting, and dynamic loading.",
-  },
-  {
-    notes:
-      "Define a custom agent as the reusable package for stable role instructions. It is a custom prompt plus a runtime profile: role, rules, tools, permissions, boundaries, and quality bar.",
-  },
-  {
-    notes:
-      "Introduce subagents as separate working papers. A subagent may start from a shared task brief or forked context, then keeps its own local detail and returns a summary or artifact.",
-  },
-  {
-    notes:
-      "Contrast compaction with planned decomposition. Compaction compresses one evolving paper when it gets too full. Subagent decomposition proactively assigns separate papers to weakly coupled branches.",
-  },
-  {
-    notes:
-      "Give the audience the operating rule. Subagents work best when tasks have clear boundaries, can run independently for a while, and can merge through a summary, file, finding list, or checkpoint.",
-  },
-  {
-    notes:
-      "Define a skill as a just-in-time prompt/manual pack. Use it when you cannot know up front whether a specific checklist, template, or method will be needed in this task.",
-  },
-  {
-    notes:
-      "Show that a skill is more than a prompt. It can sit beside scripts, templates, examples, schemas, and references so a repeated capability is organized as a small tool kit.",
-  },
-  {
-    notes:
-      "Summarize the selection logic. Stable role goes into a custom agent. Independent branch goes to a subagent. Conditional method goes into a skill. One-off detail stays in the current prompt.",
-  },
-  {
-    notes:
-      "Close the loop. Lesson 2 is about scaling custom prompts by packaging, isolating, and loading them just in time. Lesson 2.1 goes deeper into runtime objects; Lesson 3 handles multi-agent workflows.",
-  },
+  { notes: "Lesson 2 starts where Lesson 1 ended: prompts are written onto a limited paper. This lesson is about scaling prompt-like instructions without crowding the same context." },
+  { notes: "Show why copy-pasting custom prompts breaks down. The model still only sees one paper, so duplicated rules compete with the actual task." },
+  { notes: "A custom agent packages a stable role and working profile. Treat it as a reusable worker identity, not a longer one-off prompt." },
+  { notes: "A subagent is a delegated worker with its own paper. The main thread sends a bounded brief and receives a summary or artifact back." },
+  { notes: "Compaction compresses one crowded paper. Subagent decomposition proactively gives weakly coupled branches their own papers before detail is compressed away." },
+  { notes: "Subagents work best when local papers can make progress and rejoin through a clear merge artifact. Coupling is a synchronization question, not an automatic ban." },
+  { notes: "Skills solve the conditional-loading problem. Keep a method outside the paper until the task actually needs that manual or checklist." },
+  { notes: "A skill can be a small capability kit. It can keep workflow instructions, scripts, examples, templates, and references together." },
+  { notes: "This slide gives the selection rule: one-off prompt, custom agent, subagent, and skill each solve a different context-loading problem." },
+  { notes: "Close with the operating model: prompt engineering writes instructions; context architecture decides where those instructions travel." },
 ];
 
 async function writeBlob(filePath, blob) {
@@ -82,28 +51,21 @@ async function writeBlob(filePath, blob) {
 }
 
 async function normalizeLessonAsset(filePath) {
-  await execFileAsync("/usr/bin/sips", [
-    "--padToHeightWidth",
-    "941",
-    "1672",
-    "--padColor",
-    "FFFFFF",
-    filePath,
-  ]);
+  await execFileAsync("/usr/bin/sips", ["--padToHeightWidth", "941", "1672", "--padColor", "FFFFFF", filePath]);
 }
 
-function addShape(slide, { left, top, width, height, fill = "white", line = BORDER, radius = "rounded-lg", shadow = undefined }) {
+function shape(slide, { left, top, width, height, fill = "white", line = BORDER, radius = "rounded-lg", shadow = undefined }) {
   return slide.shapes.add({
     geometry: "roundRect",
     position: { left, top, width, height },
     fill,
-    line: { style: "solid", fill: line, width: 1.2 },
+    line: line === "none" ? { style: "solid", fill: "none", width: 0 } : { style: "solid", fill: line, width: 1.15 },
     borderRadius: radius,
     ...(shadow ? { shadow } : {}),
   });
 }
 
-function addText(slide, value, { left, top, width, height, fontSize = 20, color = NAVY, bold = false, italic = false, align = "left" }) {
+function text(slide, value, { left, top, width, height, fontSize = 18, color = NAVY, bold = false, italic = false, align = "left" }) {
   const box = slide.shapes.add({
     geometry: "textbox",
     position: { left, top, width, height },
@@ -115,10 +77,19 @@ function addText(slide, value, { left, top, width, height, fontSize = 20, color 
   return box;
 }
 
-function addLine(slide, { left, top, width, height = 0, color = BLUE, weight = 2, arrow = false, dash = undefined }) {
+function line(slide, { left, top, width, height = 0, color = BLUE, weight = 2, arrow = false, dash = undefined }) {
+  const position = { left, top, width, height };
+  if (position.width < 0) {
+    position.left += position.width;
+    position.width = Math.abs(position.width);
+  }
+  if (position.height < 0) {
+    position.top += position.height;
+    position.height = Math.abs(position.height);
+  }
   slide.shapes.add({
     geometry: "line",
-    position: { left, top, width, height },
+    position,
     line: {
       style: "solid",
       fill: color,
@@ -129,470 +100,402 @@ function addLine(slide, { left, top, width, height = 0, color = BLUE, weight = 2
   });
 }
 
-function addHeader(slide, title, subtitle, number) {
-  addShape(slide, { left: 48, top: 34, width: 52, height: 52, fill: BLUE, line: BLUE, radius: "rounded-md", shadow: "shadow-sm" });
-  addText(slide, String(number), { left: 64, top: 45, width: 20, height: 28, fontSize: 26, color: "white", bold: true, align: "center" });
-  const titleFont = title.length > 54 ? 34 : title.length > 44 ? 36 : 40;
-  addText(slide, title, { left: 126, top: 34, width: 1080, height: 54, fontSize: titleFont, color: NAVY, bold: true });
-  addText(slide, subtitle, { left: 126, top: 92, width: 1020, height: 30, fontSize: 20, color: BLUE });
-  addLine(slide, { left: 48, top: 130, width: 1184, weight: 2 });
+function bulbIcon(slide, left, top, size = 40, color = BLUE) {
+  shape(slide, { left, top, width: size, height: size, fill: "white", line: "white", radius: "rounded-full" });
+  shape(slide, { left: left + size * 0.31, top: top + size * 0.2, width: size * 0.38, height: size * 0.38, fill: "none", line: color, radius: "rounded-full" });
+  line(slide, { left: left + size * 0.5, top: top + size * 0.56, width: 0, height: size * 0.12, color, weight: 2 });
+  line(slide, { left: left + size * 0.38, top: top + size * 0.72, width: size * 0.24, color, weight: 2 });
+  line(slide, { left: left + size * 0.4, top: top + size * 0.82, width: size * 0.2, color, weight: 2 });
+  line(slide, { left: left + size * 0.18, top: top + size * 0.36, width: size * 0.08, color, weight: 1.5 });
+  line(slide, { left: left + size * 0.74, top: top + size * 0.36, width: size * 0.08, color, weight: 1.5 });
 }
 
-function addBadge(slide, value, { left, top, color = BLUE, size = 40 }) {
-  addShape(slide, { left, top, width: size, height: size, fill: color, line: color, radius: "rounded-full" });
-  addText(slide, value, { left: left + size * 0.3, top: top + size * 0.23, width: size * 0.4, height: size * 0.4, fontSize: size * 0.42, color: "white", bold: true, align: "center" });
+function brainIcon(slide, left, top, size = 46, color = BLUE) {
+  shape(slide, { left, top, width: size, height: size, fill: color, line: color, radius: "rounded-full" });
+  shape(slide, { left: left + size * 0.22, top: top + size * 0.2, width: size * 0.32, height: size * 0.32, fill: "none", line: "white", radius: "rounded-full" });
+  shape(slide, { left: left + size * 0.44, top: top + size * 0.2, width: size * 0.32, height: size * 0.32, fill: "none", line: "white", radius: "rounded-full" });
+  line(slide, { left: left + size * 0.26, top: top + size * 0.52, width: size * 0.5, color: "white", weight: 2 });
+  line(slide, { left: left + size * 0.5, top: top + size * 0.28, width: 0, height: size * 0.38, color: "white", weight: 2 });
+  line(slide, { left: left + size * 0.38, top: top + size * 0.66, width: size * 0.24, height: size * 0.12, color: "white", weight: 2 });
 }
 
-function addPaper(slide, { left, top, width, height, title = "Paper", fill = "white", line = BORDER }) {
-  addShape(slide, { left, top, width, height, fill, line, radius: "rounded-lg", shadow: "shadow-sm" });
-  addLine(slide, { left: left + 46, top: top + 10, width: 0, height: height - 20, color: "#ffb5b5", weight: 1 });
-  for (let y = top + 58; y < top + height - 20; y += 32) {
-    addLine(slide, { left: left + 16, top: y, width: width - 32, color: "#dbe8f6", weight: 1 });
+function badge(slide, value, { left, top, color = BLUE, size = 38 }) {
+  shape(slide, { left, top, width: size, height: size, fill: color, line: color, radius: "rounded-full" });
+  text(slide, value, { left: left + size * 0.28, top: top + size * 0.22, width: size * 0.44, height: size * 0.44, fontSize: size * 0.42, color: "white", bold: true, align: "center" });
+}
+
+function docIcon(slide, left, top, size = 64) {
+  shape(slide, { left, top, width: size, height: size, fill: "white", line: BLUE, radius: "rounded-md", shadow: "shadow-sm" });
+  line(slide, { left: left + size * 0.22, top: top + size * 0.36, width: size * 0.48, color: BLUE, weight: 3 });
+  line(slide, { left: left + size * 0.22, top: top + size * 0.54, width: size * 0.48, color: BLUE, weight: 3 });
+  line(slide, { left: left + size * 0.22, top: top + size * 0.72, width: size * 0.34, color: BLUE, weight: 3 });
+}
+
+function header(slide, title, subtitle) {
+  docIcon(slide, 42, 28, 68);
+  const fs = title.length > 56 ? 34 : title.length > 44 ? 38 : 44;
+  text(slide, title, { left: 132, top: 36, width: 1040, height: 56, fontSize: fs, color: NAVY, bold: true });
+  line(slide, { left: 132, top: 104, width: 1080, color: BLUE, weight: 2 });
+  shape(slide, { left: 128, top: 100, width: 8, height: 8, fill: BLUE, line: BLUE, radius: "rounded-full" });
+  shape(slide, { left: 1208, top: 100, width: 8, height: 8, fill: BLUE, line: BLUE, radius: "rounded-full" });
+  text(slide, subtitle, { left: 246, top: 120, width: 770, height: 28, fontSize: 20, color: BLUE, italic: true, align: "center" });
+}
+
+function paper(slide, { left, top, width, height, title = "Paper", fill = "white", lineColor = BORDER, titleColor = BLUE }) {
+  shape(slide, { left, top, width, height, fill, line: lineColor, radius: "rounded-lg", shadow: "shadow-sm" });
+  line(slide, { left: left + 44, top: top + 12, width: 0, height: height - 24, color: "#ffb5b5", weight: 1 });
+  for (let y = top + 54; y < top + height - 18; y += 30) {
+    line(slide, { left: left + 16, top: y, width: width - 32, color: "#dbe8f6", weight: 1 });
   }
-  addText(slide, title, { left: left + 70, top: top + 20, width: width - 100, height: 28, fontSize: 24, color: BLUE, bold: true, align: "center" });
-}
-
-function addPromptBlock(slide, { left, top, width, height, title, body, color = BLUE, fill = PALE }) {
-  addShape(slide, { left, top, width, height, fill, line: color, radius: "rounded-md" });
-  addText(slide, title, { left: left + 16, top: top + 10, width: width - 32, height: 22, fontSize: 17, color, bold: true, align: "center" });
-  if (body) {
-    addText(slide, body, { left: left + 18, top: top + 40, width: width - 36, height: height - 44, fontSize: 13, color: NAVY, align: "center" });
-  }
-}
-
-function addFooterCallout(slide, { label, text, fill = YELLOW, line = "#f0d891", color = ORANGE }) {
-  addShape(slide, { left: 68, top: 606, width: 1144, height: 66, fill, line, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, label, { left: 104, top: 626, width: 190, height: 24, fontSize: 22, color, bold: true });
-  addText(slide, text, { left: 320, top: 620, width: 840, height: 40, fontSize: 19, color: NAVY });
-}
-
-function slide1(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addText(slide, "Lesson 2", { left: 62, top: 42, width: 230, height: 54, fontSize: 48, color: BLUE, bold: true });
-  addText(slide, "Custom Prompts at Scale", { left: 302, top: 42, width: 850, height: 54, fontSize: 48, color: NAVY, bold: true });
-  addText(slide, "Reuse, split, and load prompt-like instructions without crowding one paper.", {
-    left: 220,
-    top: 112,
-    width: 840,
-    height: 32,
-    fontSize: 22,
-    color: BLUE,
-    italic: true,
+  const compact = width < 170;
+  text(slide, title, {
+    left: left + (compact ? 14 : 58),
+    top: top + (compact ? 18 : 18),
+    width: width - (compact ? 28 : 82),
+    height: compact ? 22 : 28,
+    fontSize: width < 120 ? (title.length > 5 ? 10 : 13) : compact ? 16 : 23,
+    color: titleColor,
+    bold: true,
     align: "center",
   });
-  addLine(slide, { left: 62, top: 156, width: 1156, weight: 2 });
+}
 
-  addPaper(slide, { left: 82, top: 218, width: 274, height: 250, title: "Lesson 1 paper" });
-  addText(slide, "User prompt\nSystem prompt\nContext\nTool result", { left: 140, top: 288, width: 164, height: 116, fontSize: 22, color: NAVY, align: "center" });
+function userFigure(slide, left, top, scale = 1) {
+  shape(slide, { left: left + 28 * scale, top, width: 54 * scale, height: 54 * scale, fill: "#dbeafe", line: BLUE, radius: "rounded-full" });
+  shape(slide, { left: left + 38 * scale, top: top + 14 * scale, width: 34 * scale, height: 34 * scale, fill: BLUE, line: BLUE, radius: "rounded-full" });
+  shape(slide, { left: left + 6 * scale, top: top + 58 * scale, width: 100 * scale, height: 76 * scale, fill: LIGHT_BLUE, line: BLUE, radius: "rounded-lg" });
+  text(slide, "User", { left: left + 20 * scale, top: top + 80 * scale, width: 72 * scale, height: 22 * scale, fontSize: 18 * scale, color: BLUE, bold: true, align: "center" });
+}
 
-  addLine(slide, { left: 382, top: 344, width: 96, arrow: true, weight: 4 });
-  addText(slide, "scale the\nprompts", { left: 382, top: 282, width: 96, height: 46, fontSize: 18, color: BLUE, bold: true, align: "center" });
+function writerScene(slide, left, top, scale = 1) {
+  line(slide, { left: left + 4 * scale, top: top + 4 * scale, width: 70 * scale, color: "#dbe8f6", weight: 3 });
+  line(slide, { left: left + 4 * scale, top: top + 4 * scale, width: 0, height: 86 * scale, color: "#dbe8f6", weight: 3 });
+  line(slide, { left: left + 42 * scale, top: top + 4 * scale, width: 0, height: 66 * scale, color: "#dbe8f6", weight: 3 });
+  shape(slide, { left: left + 8 * scale, top: top + 94 * scale, width: 170 * scale, height: 16 * scale, fill: "#e7effa", line: "#e7effa", radius: "rounded-md" });
+  shape(slide, { left: left + 44 * scale, top: top + 28 * scale, width: 46 * scale, height: 48 * scale, fill: "#f6c8a5", line: "#d9a07a", radius: "rounded-full" });
+  shape(slide, { left: left + 38 * scale, top: top + 22 * scale, width: 56 * scale, height: 26 * scale, fill: NAVY, line: NAVY, radius: "rounded-full" });
+  shape(slide, { left: left + 28 * scale, top: top + 76 * scale, width: 92 * scale, height: 82 * scale, fill: NAVY, line: BLUE, radius: "rounded-lg" });
+  shape(slide, { left: left + 58 * scale, top: top + 84 * scale, width: 34 * scale, height: 58 * scale, fill: "white", line: "white", radius: "rounded-md" });
+  shape(slide, { left: left + 60 * scale, top: top + 132 * scale, width: 96 * scale, height: 44 * scale, fill: "white", line: BORDER, radius: "rounded-md", shadow: "shadow-sm" });
+  for (let i = 0; i < 3; i++) {
+    line(slide, { left: left + 72 * scale, top: top + (146 + i * 9) * scale, width: 58 * scale, color: "#cfe0f4", weight: 1 });
+  }
+  line(slide, { left: left + 96 * scale, top: top + 132 * scale, width: 24 * scale, height: 28 * scale, color: NAVY, weight: 2 });
+  shape(slide, { left: left + 38 * scale, top: top + 184 * scale, width: 108 * scale, height: 38 * scale, fill: BLUE, line: BLUE, radius: "rounded-md" });
+  text(slide, "User", { left: left + 58 * scale, top: top + 194 * scale, width: 70 * scale, height: 16 * scale, fontSize: 18 * scale, color: "white", bold: true, align: "center" });
+  text(slide, "writes on the paper", { left: left + 34 * scale, top: top + 230 * scale, width: 130 * scale, height: 22 * scale, fontSize: 13 * scale, color: NAVY, italic: true, align: "center" });
+}
+
+function robotFigure(slide, left, top, scale = 1, label = "AI Model") {
+  shape(slide, { left, top, width: 132 * scale, height: 132 * scale, fill: "#dbeafe", line: "none", radius: "rounded-full" });
+  shape(slide, { left: left + 28 * scale, top: top + 28 * scale, width: 76 * scale, height: 62 * scale, fill: "white", line: BLUE, radius: "rounded-lg", shadow: "shadow-sm" });
+  shape(slide, { left: left + 42 * scale, top: top + 44 * scale, width: 48 * scale, height: 24 * scale, fill: NAVY, line: NAVY, radius: "rounded-md" });
+  shape(slide, { left: left + 52 * scale, top: top + 51 * scale, width: 8 * scale, height: 8 * scale, fill: "#5bc0ff", line: "#5bc0ff", radius: "rounded-full" });
+  shape(slide, { left: left + 73 * scale, top: top + 51 * scale, width: 8 * scale, height: 8 * scale, fill: "#5bc0ff", line: "#5bc0ff", radius: "rounded-full" });
+  shape(slide, { left: left + 48 * scale, top: top + 92 * scale, width: 40 * scale, height: 22 * scale, fill: NAVY, line: NAVY, radius: "rounded-md" });
+  shape(slide, { left: left + 18 * scale, top: top + 116 * scale, width: 96 * scale, height: 34 * scale, fill: "white", line: BLUE, radius: "rounded-lg", shadow: "shadow-sm" });
+  shape(slide, { left: left + 5 * scale, top: top + 160 * scale, width: 122 * scale, height: 36 * scale, fill: BLUE, line: BLUE, radius: "rounded-md" });
+  text(slide, label, { left: left + 12 * scale, top: top + 168 * scale, width: 108 * scale, height: 18 * scale, fontSize: 16 * scale, color: "white", bold: true, align: "center" });
+}
+
+function miniIcon(slide, kind, left, top, color = BLUE) {
+  shape(slide, { left, top, width: 44, height: 44, fill: color, line: color, radius: "rounded-full" });
+  const label = { package: "PKG", split: "3x", skill: "SK", paper: "P", warn: "!", bot: "AI", folder: "DIR", merge: "IN", load: "LD", pen: "PEN" }[kind] ?? "i";
+  text(slide, label, { left: left + 2, top: top + 13, width: 40, height: 16, fontSize: label.length > 3 ? 8 : label.length > 2 ? 9 : 16, color: "white", bold: true, align: "center" });
+}
+
+function keyPanel(slide, items, { title = "Key idea", left = 996, top = 178, width = 242, height = 370, color = BLUE } = {}) {
+  shape(slide, { left, top, width, height, fill: "white", line: color, radius: "rounded-lg", shadow: "shadow-sm" });
+  shape(slide, { left, top, width, height: 64, fill: color, line: color, radius: "rounded-lg" });
+  bulbIcon(slide, left + 22, top + 12, 40, color);
+  text(slide, title, { left: left + 76, top: top + 18, width: width - 92, height: 26, fontSize: 26, color: "white", bold: true });
+  items.forEach((item, i) => {
+    const rowTop = top + 86 + i * 68;
+    badge(slide, String(i + 1), { left: left + 24, top: rowTop, color, size: 36 });
+    text(slide, item, { left: left + 72, top: rowTop + 3, width: width - 94, height: 42, fontSize: 16, color: NAVY });
+    if (i < items.length - 1) line(slide, { left: left + 24, top: rowTop + 56, width: width - 48, color: "#d7e6fb", weight: 1 });
+  });
+}
+
+function mentalModel(slide, textValue, { label = "Mental model", color = BLUE } = {}) {
+  shape(slide, { left: 54, top: 610, width: 880, height: 82, fill: PALE, line: color, radius: "rounded-lg", shadow: "shadow-sm" });
+  brainIcon(slide, 84, 628, 46, color);
+  text(slide, label, { left: 154, top: 634, width: 190, height: 28, fontSize: 24, color, bold: true });
+  line(slide, { left: 350, top: 628, width: 0, height: 48, color, weight: 1 });
+  text(slide, textValue, { left: 380, top: 630, width: 510, height: 42, fontSize: 18, color: NAVY });
+}
+
+function tag(slide, label, { left, top, width = 136, color = BLUE, fill = LIGHT_BLUE, icon = "paper" }) {
+  shape(slide, { left, top, width, height: 54, fill, line: color, radius: "rounded-lg", shadow: "shadow-sm" });
+  miniIcon(slide, icon, left + 7, top + 5, color);
+  text(slide, label, { left: left + 54, top: top + 13, width: width - 60, height: 28, fontSize: width < 130 ? 12 : 14, color: NAVY, bold: true, align: "center" });
+}
+
+function addPromptBlock(slide, { left, top, width, height, title, body = "", color = BLUE, fill = LIGHT_BLUE }) {
+  shape(slide, { left, top, width, height, fill, line: color, radius: "rounded-md", shadow: "shadow-sm" });
+  miniIcon(slide, title.toLowerCase().includes("tool") ? "pen" : title.toLowerCase().includes("format") ? "paper" : "load", left + 10, top + 8, color);
+  text(slide, title, { left: left + 62, top: top + 12, width: width - 76, height: 18, fontSize: 15, color, bold: true });
+  if (body) {
+    text(slide, body, { left: left + 62, top: top + 34, width: width - 76, height: height - 38, fontSize: 13, color: NAVY });
+  }
+}
+
+function slide1(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Custom Prompts at Scale", "Reuse, split, and load prompts without crowding one shared paper.");
+
+  writerScene(slide, 50, 214, 0.9);
+  paper(slide, { left: 318, top: 180, width: 390, height: 360, title: "Crowded prompt paper", lineColor: BLUE });
+  ["System prompt", "User prompt", "Custom rules", "Tool result", "Task detail"].forEach((label, i) => {
+    addPromptBlock(slide, { left: 378, top: 250 + i * 50, width: 250, height: 36, title: label, color: i === 4 ? RED : BLUE, fill: i === 4 ? RED_PALE : LIGHT_BLUE });
+  });
+  robotFigure(slide, 740, 245, 0.92, "AI Model");
+  line(slide, { left: 224, top: 350, width: 78, arrow: true, weight: 4 });
+  line(slide, { left: 716, top: 350, width: 46, arrow: true, weight: 4 });
+
+  tag(slide, "Custom agent", { left: 320, top: 526, width: 158, color: GREEN, fill: MINT, icon: "package" });
+  tag(slide, "Subagent", { left: 494, top: 526, width: 144, color: ORANGE, fill: YELLOW, icon: "split" });
+  tag(slide, "Skill", { left: 654, top: 526, width: 128, color: PURPLE, fill: PURPLE_PALE, icon: "skill" });
+
+  keyPanel(slide, ["Package stable rules", "Split work onto papers", "Load methods on demand"], { height: 330 });
+  mentalModel(slide, "Prompt scaling is not writing more text. It is deciding which paper gets which instructions.");
+  return slide;
+}
+
+function slide2(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Copy-Pasted Prompts Break the Paper", "Every copied rule competes with the actual task for visible space.");
+
+  userFigure(slide, 54, 238, 0.95);
+  paper(slide, { left: 286, top: 174, width: 376, height: 370, title: "One overloaded paper", lineColor: RED });
+  ["Role rules", "Review checklist", "Output format", "Edge cases"].forEach((label, i) => {
+    addPromptBlock(slide, { left: 350, top: 246 + i * 56, width: 232, height: 40, title: label, color: [RED, ORANGE, BLUE, PURPLE][i], fill: [RED_PALE, YELLOW, LIGHT_BLUE, PURPLE_PALE][i] });
+  });
+  shape(slide, { left: 596, top: 460, width: 112, height: 40, fill: RED_PALE, line: RED, radius: "rounded-md" });
+  text(slide, "Task detail", { left: 610, top: 470, width: 84, height: 16, fontSize: 15, color: RED, bold: true, align: "center" });
+  line(slide, { left: 620, top: 482, width: 52, height: 36, color: RED, arrow: true, dash: "dash" });
+  robotFigure(slide, 720, 256, 0.84, "AI reads");
+
+  keyPanel(slide, ["Unused rules cost tokens", "Copies drift over time", "Task details get pushed out", "Compaction arrives sooner"], { height: 392, color: RED });
+  mentalModel(slide, "The model is not ignoring you. The useful task space is being crowded by copied instructions.", { color: RED });
+  return slide;
+}
+
+function slide3(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Custom Agent: A Reusable Worker Profile", "Stable roles should enter as a prepared worker, not copied prompt text.");
+
+  addPromptBlock(slide, { left: 88, top: 220, width: 230, height: 88, title: "Review prompt", body: "Find bugs\nCheck tests\nReport findings", color: BLUE, fill: LIGHT_BLUE });
+  addPromptBlock(slide, { left: 118, top: 332, width: 210, height: 72, title: "Format rules", body: "Findings first", color: ORANGE, fill: YELLOW });
+  line(slide, { left: 350, top: 338, width: 110, arrow: true, weight: 4, color: GREEN });
+  tag(slide, "Package", { left: 368, top: 270, width: 126, color: GREEN, fill: MINT, icon: "package" });
+
+  robotFigure(slide, 500, 230, 1.0, "Reviewer agent");
+  shape(slide, { left: 670, top: 200, width: 278, height: 280, fill: MINT, line: GREEN, radius: "rounded-lg", shadow: "shadow-sm" });
+  text(slide, "Agent clipboard", { left: 704, top: 222, width: 210, height: 34, fontSize: 22, color: GREEN, bold: true, align: "center" });
+  [["Role", "reviewer"], ["Rules", "find risks"], ["Tools", "repo + tests"], ["Access", "bounded"], ["Quality", "verify"]].forEach(([a, b], i) => {
+    shape(slide, { left: 704, top: 274 + i * 38, width: 210, height: 28, fill: "white", line: "#b8dec8", radius: "rounded-md" });
+    text(slide, a, { left: 720, top: 280 + i * 38, width: 72, height: 14, fontSize: 14, color: GREEN, bold: true });
+    text(slide, b, { left: 804, top: 280 + i * 38, width: 90, height: 14, fontSize: 14, color: NAVY });
+  });
+
+  keyPanel(slide, ["Stable role", "Fixed constraints", "Permission boundary", "Repeatable quality bar"], { height: 392, color: GREEN });
+  mentalModel(slide, "A custom agent is a prepared worker profile. It carries the same job rules each time.", { color: GREEN });
+  return slide;
+}
+
+function slide4(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Subagent: Give a Branch Its Own Paper", "The main worker sends bounded local tasks to separate papers.");
+
+  userFigure(slide, 44, 248, 0.86);
+  robotFigure(slide, 180, 244, 0.78, "Main agent");
+  paper(slide, { left: 330, top: 214, width: 220, height: 210, title: "Main paper", lineColor: BLUE });
+  text(slide, "Goal\nconstraints\nshared brief", { left: 388, top: 294, width: 108, height: 72, fontSize: 17, color: NAVY, align: "center" });
+  const branches = [
+    [600, 166, "Research", "facts", GREEN, MINT],
+    [746, 294, "Design", "slides", PURPLE, PURPLE_PALE],
+    [600, 430, "QA", "issues", ORANGE, YELLOW],
+  ];
+  branches.forEach(([x, y, title, body, color, fill], i) => {
+    robotFigure(slide, x - 34, y - 18, 0.36, "");
+    paper(slide, { left: x + 48, top: y, width: 154, height: 112, title, fill, lineColor: color, titleColor: color });
+    text(slide, body, { left: x + 88, top: y + 62, width: 74, height: 20, fontSize: 15, color: NAVY, align: "center" });
+    line(slide, { left: 552, top: 318, width: x - 560, height: y + 54 - 318, color, arrow: true, weight: 2 });
+  });
+  shape(slide, { left: 820, top: 524, width: 150, height: 42, fill: LIGHT_BLUE, line: BLUE, radius: "rounded-md" });
+  text(slide, "summary\nartifact", { left: 846, top: 532, width: 98, height: 24, fontSize: 13, color: BLUE, bold: true, align: "center" });
+
+  keyPanel(slide, ["Each worker has a paper", "Only necessary context travels", "Local detail stays local", "Return a boundary result"], { height: 392, color: BLUE });
+  mentalModel(slide, "A subagent does not enlarge one paper. It gives a branch its own paper.", { color: BLUE });
+  return slide;
+}
+
+function slide5(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Proactive Split Beats Waiting for Compaction", "Plan separate papers before one paper becomes overloaded.");
+
+  shape(slide, { left: 70, top: 190, width: 410, height: 300, fill: RED_PALE, line: RED, radius: "rounded-lg", shadow: "shadow-sm" });
+  text(slide, "Reactive compaction", { left: 126, top: 216, width: 300, height: 28, fontSize: 26, color: RED, bold: true, align: "center" });
+  paper(slide, { left: 118, top: 274, width: 140, height: 132, title: "Full", lineColor: RED });
+  text(slide, "logs\nnotes\nerrors", { left: 156, top: 328, width: 60, height: 50, fontSize: 13, color: NAVY, align: "center" });
+  line(slide, { left: 276, top: 342, width: 52, arrow: true, weight: 3, color: RED });
+  shape(slide, { left: 346, top: 296, width: 92, height: 82, fill: "white", line: RED, radius: "rounded-md" });
+  text(slide, "summary", { left: 352, top: 318, width: 80, height: 16, fontSize: 11, color: RED, bold: true, align: "center" });
+  text(slide, "detail\nfades", { left: 360, top: 344, width: 64, height: 26, fontSize: 12, color: NAVY, align: "center" });
+
+  shape(slide, { left: 520, top: 190, width: 430, height: 300, fill: MINT, line: GREEN, radius: "rounded-lg", shadow: "shadow-sm" });
+  text(slide, "Proactive split", { left: 584, top: 216, width: 300, height: 28, fontSize: 26, color: GREEN, bold: true, align: "center" });
+  ["A", "B", "C"].forEach((name, i) => {
+    robotFigure(slide, 548 + i * 124, 276, 0.32, "");
+    paper(slide, { left: 588 + i * 124, top: 284, width: 90, height: 90, title: `Task ${name}`, fill: "white", lineColor: GREEN, titleColor: GREEN });
+  });
+  text(slide, "local detail stays intact", { left: 606, top: 414, width: 260, height: 22, fontSize: 18, color: GREEN, bold: true, align: "center" });
+
+  keyPanel(slide, ["Compaction keeps continuity", "Split preserves local detail", "Merge through checkpoints"], { height: 330, color: ORANGE });
+  mentalModel(slide, "If one person needs many scratch papers, use multiple workers with one paper each.", { color: ORANGE });
+  return slide;
+}
+
+function slide6(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Good Subagent Tasks Have Merge Boundaries", "Split where each paper can finish before it needs fresh shared state.");
+
+  paper(slide, { left: 86, top: 222, width: 190, height: 178, title: "Shared brief", lineColor: BLUE });
+  const tasks = [["Research", GREEN, MINT], ["Design", PURPLE, PURPLE_PALE], ["QA", ORANGE, YELLOW]];
+  tasks.forEach(([name, color], i) => {
+    const x = 366 + i * 178;
+    line(slide, { left: 282, top: 292 + i * 16, width: x - 292, height: 0, color, arrow: true, weight: 2 });
+  });
+  line(slide, { left: 438, top: 430, width: 356, height: 0, color: BLUE, weight: 2 });
+  tasks.forEach(([name, color, fill], i) => {
+    const x = 366 + i * 178;
+    robotFigure(slide, x + 34, 150, 0.28, "");
+    paper(slide, { left: x, top: 210, width: 144, height: 122, title: name, fill, lineColor: color, titleColor: color });
+    miniIcon(slide, i === 0 ? "paper" : i === 1 ? "split" : "warn", x + 50, 348, color);
+    line(slide, { left: x + 72, top: 392, width: 0, height: 38, color, weight: 2 });
+  });
+  shape(slide, { left: 490, top: 454, width: 286, height: 58, fill: LIGHT_BLUE, line: BLUE, radius: "rounded-lg" });
+  text(slide, "Merged artifact", { left: 516, top: 474, width: 232, height: 22, fontSize: 18, color: BLUE, bold: true, align: "center" });
+  line(slide, { left: 634, top: 430, width: 0, height: 22, color: BLUE, arrow: true });
+
+  keyPanel(slide, ["Independent branch", "Clear input and output", "Easy merge artifact"], { height: 330, color: BLUE });
+  mentalModel(slide, "Subagents work best when each paper can finish before it needs fresh shared state.", { color: BLUE });
+  return slide;
+}
+
+function slide7(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Skill: Load the Prompt Only When Needed", "A skill keeps conditional methods outside the paper until they apply.");
+
+  userFigure(slide, 64, 258, 0.74);
+  paper(slide, { left: 240, top: 206, width: 230, height: 228, title: "Current paper", lineColor: BLUE });
+  text(slide, "Task:\nImprove deck\n\nMaybe:\nPPT QA?\nDocs lookup?", { left: 296, top: 276, width: 118, height: 104, fontSize: 16, color: NAVY, align: "center" });
+  shape(slide, { left: 542, top: 196, width: 226, height: 246, fill: PURPLE_PALE, line: PURPLE, radius: "rounded-lg", shadow: "shadow-sm" });
+  miniIcon(slide, "folder", 632, 222, PURPLE);
+  text(slide, "Skill registry", { left: 574, top: 276, width: 162, height: 28, fontSize: 24, color: PURPLE, bold: true, align: "center" });
+  [["slides", "loaded"], ["docs", "loaded"], ["pdf", "outside"], ["image", "later"]].forEach(([name, state], i) => {
+    shape(slide, { left: 584, top: 322 + i * 26, width: 142, height: 20, fill: "white", line: "#d7c7ef", radius: "rounded-md" });
+    text(slide, name, { left: 598, top: 326 + i * 26, width: 54, height: 10, fontSize: 11, color: PURPLE, bold: state === "loaded" });
+    text(slide, state, { left: 660, top: 326 + i * 26, width: 52, height: 10, fontSize: 10, color: state === "loaded" ? GREEN : MID, align: "right" });
+  });
+  paper(slide, { left: 812, top: 228, width: 158, height: 180, title: "Loaded", fill: MINT, lineColor: GREEN, titleColor: GREEN });
+  text(slide, "relevant\nmanuals\nonly", { left: 844, top: 304, width: 96, height: 54, fontSize: 15, color: NAVY, align: "center" });
+  line(slide, { left: 482, top: 320, width: 50, arrow: true, weight: 4, color: PURPLE });
+  line(slide, { left: 776, top: 320, width: 42, arrow: true, weight: 4, color: PURPLE });
+
+  keyPanel(slide, ["Only relevant materials load", "Unused skills stay outside", "Skills are just-in-time manuals"], { height: 330, color: PURPLE });
+  mentalModel(slide, "A skill is a manual pack placed onto the paper only when the task needs it.", { color: PURPLE });
+  return slide;
+}
+
+function slide8(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Skill Bundles Prompts with Tools and Examples", "A reusable capability is a small kit, not just a prompt.");
+
+  paper(slide, { left: 82, top: 238, width: 210, height: 190, title: "Prompt only", lineColor: BLUE });
+  text(slide, "steps\nformat\nchecklist", { left: 132, top: 314, width: 110, height: 58, fontSize: 17, color: NAVY, align: "center" });
+  line(slide, { left: 320, top: 334, width: 80, arrow: true, weight: 4, color: GREEN });
+  shape(slide, { left: 432, top: 190, width: 440, height: 300, fill: MINT, line: GREEN, radius: "rounded-lg", shadow: "shadow-sm" });
+  miniIcon(slide, "folder", 626, 214, GREEN);
+  text(slide, "Skill folder kit", { left: 536, top: 266, width: 232, height: 28, fontSize: 27, color: GREEN, bold: true, align: "center" });
+  [["SKILL.md", "workflow rules", GREEN], ["scripts/", "repeatable operations", BLUE], ["examples/", "good outputs", PURPLE], ["templates/", "starting frames", ORANGE]].forEach(([name, body, color], i) => {
+    miniIcon(slide, i === 1 ? "pen" : i === 2 ? "paper" : i === 3 ? "package" : "load", 486, 318 + i * 38, color);
+    shape(slide, { left: 540, top: 322 + i * 38, width: 278, height: 28, fill: "white", line: "#b8dec8", radius: "rounded-md" });
+    text(slide, name, { left: 556, top: 328 + i * 38, width: 84, height: 12, fontSize: 13, color, bold: true });
+    text(slide, body, { left: 656, top: 328 + i * 38, width: 132, height: 12, fontSize: 13, color: NAVY });
+  });
+  robotFigure(slide, 854, 304, 0.42, "");
+  line(slide, { left: 820, top: 356, width: 40, arrow: true, weight: 3, color: GREEN });
+
+  keyPanel(slide, ["Prompt plus resources", "Scripts stay with method", "Examples make quality repeatable"], { height: 330, color: GREEN });
+  mentalModel(slide, "A skill is a small kit that places the right materials onto the paper when needed.", { color: GREEN });
+  return slide;
+}
+
+function slide9(p) {
+  const slide = p.slides.add();
+  slide.background.fill = "white";
+  header(slide, "Choose the Right Prompt-Scaling Pattern", "Each object solves a different loading problem.");
 
   const cards = [
-    ["Custom agent", "Package stable roles", GREEN, MINT],
-    ["Subagent", "Give a branch its own paper", BLUE, LIGHT_BLUE],
-    ["Skill", "Load a method only when needed", PURPLE, PURPLE_PALE],
+    ["Write", "current paper", BLUE, LIGHT_BLUE, "pen"],
+    ["Package", "agent paper", GREEN, MINT, "package"],
+    ["Split", "branch papers", ORANGE, YELLOW, "split"],
+    ["Load", "skill paper", PURPLE, PURPLE_PALE, "skill"],
   ];
-  cards.forEach(([title, body, color, fill], i) => {
-    const left = 514 + i * 224;
-    addShape(slide, { left, top: 202, width: 190, height: 286, fill, line: color, radius: "rounded-lg", shadow: "shadow-sm" });
-    addBadge(slide, String(i + 1), { left: left + 72, top: 230, color, size: 44 });
-    addText(slide, title, { left: left + 18, top: 292, width: 154, height: 28, fontSize: 22, color, bold: true, align: "center" });
-    addText(slide, body, { left: left + 20, top: 344, width: 150, height: 70, fontSize: 18, color: NAVY, align: "center" });
-  });
-
-  addFooterCallout(slide, {
-    label: "Core idea",
-    text: "Lesson 2 is not more prompting. It is prompt reuse, isolation, and just-in-time loading.",
-  });
-  return slide;
-}
-
-function slide2(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Copy-Pasted Custom Prompts Break the Paper", "A good prompt becomes a problem when every task carries every rule.", 1);
-
-  addPaper(slide, { left: 70, top: 178, width: 418, height: 348, title: "One crowded paper", line: RED });
-  [
-    ["Role rules", "", RED, RED_PALE],
-    ["Checklist", "", ORANGE, YELLOW],
-    ["Format rules", "", BLUE, LIGHT_BLUE],
-    ["Edge cases", "", PURPLE, PURPLE_PALE],
-  ].forEach(([title, body, color, fill], i) => {
-    addPromptBlock(slide, { left: 126, top: 242 + i * 68, width: 294, height: 52, title, body, color, fill });
-  });
-
-  addLine(slide, { left: 518, top: 346, width: 80, arrow: true, weight: 4, color: RED });
-
-  const problems = [
-    ["Token cost", "Every unused rule still consumes attention."],
-    ["Prompt drift", "Copies change in different places."],
-    ["Maintenance", "No clear owner for the latest version."],
-    ["Compaction", "Long prompts push task detail out sooner."],
-  ];
-  problems.forEach(([title, body], i) => {
-    const left = 632 + (i % 2) * 280;
-    const top = 210 + Math.floor(i / 2) * 142;
-    addShape(slide, { left, top, width: 246, height: 106, fill: i % 2 ? PALE : LIGHT_BLUE, line: BORDER, radius: "rounded-lg" });
-    addBadge(slide, String(i + 1), { left: left + 18, top: top + 32, color: RED, size: 38 });
-    addText(slide, title, { left: left + 68, top: top + 22, width: 154, height: 24, fontSize: 20, color: RED, bold: true });
-    addText(slide, body, { left: left + 68, top: top + 52, width: 154, height: 42, fontSize: 14, color: NAVY });
-  });
-
-  addFooterCallout(slide, {
-    label: "Question",
-    text: "Which prompts should be packaged, split, or loaded later?",
-    fill: LIGHT_BLUE,
-    line: BLUE,
-    color: BLUE,
-  });
-  return slide;
-}
-
-function slide3(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Custom Agent: Package a Stable Custom Prompt", "Use a reusable worker profile when the role and rules are predictable.", 2);
-
-  addShape(slide, { left: 78, top: 188, width: 284, height: 296, fill: PALE, line: BLUE, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Custom prompt", { left: 112, top: 220, width: 216, height: 30, fontSize: 26, color: BLUE, bold: true, align: "center" });
-  addText(slide, "\"Act as a reviewer.\nCheck correctness.\nFind test gaps.\nReturn findings first.\"", {
-    left: 112,
-    top: 292,
-    width: 216,
-    height: 116,
-    fontSize: 20,
-    color: NAVY,
-    align: "center",
-  });
-
-  addLine(slide, { left: 392, top: 336, width: 90, arrow: true, weight: 4 });
-  addText(slide, "stabilize\nand package", { left: 386, top: 270, width: 104, height: 46, fontSize: 17, color: BLUE, bold: true, align: "center" });
-
-  addShape(slide, { left: 514, top: 156, width: 636, height: 370, fill: LIGHT_BLUE, line: GREEN, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Custom agent profile", { left: 614, top: 188, width: 436, height: 34, fontSize: 30, color: GREEN, bold: true, align: "center" });
-  const parts = [
-    ["Role", "what job this worker owns"],
-    ["Rules", "standing instructions and standards"],
-    ["Tools", "allowed capabilities"],
-    ["Access", "permissions and sandbox"],
-    ["Boundary", "what not to change"],
-    ["Quality bar", "how to verify and report"],
-  ];
-  parts.forEach(([title, body], i) => {
-    const left = 572 + (i % 2) * 274;
-    const top = 252 + Math.floor(i / 2) * 74;
-    addShape(slide, { left, top, width: 236, height: 54, fill: "white", line: "#b8dec8", radius: "rounded-md" });
-    addText(slide, title, { left: left + 16, top: top + 8, width: 78, height: 18, fontSize: 16, color: GREEN, bold: true });
-    addText(slide, body, { left: left + 96, top: top + 8, width: 120, height: 34, fontSize: 14, color: NAVY });
-  });
-
-  addFooterCallout(slide, {
-    label: "Use when",
-    text: "The same role and constraints recur often enough that copy-paste should become configuration.",
-    fill: MINT,
-    line: GREEN,
-    color: GREEN,
-  });
-  return slide;
-}
-
-function slide4(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Subagent: Give a Branch Its Own Paper", "A subagent is a delegated run with a separate working context.", 3);
-
-  addPaper(slide, { left: 88, top: 202, width: 280, height: 260, title: "Main paper", line: BLUE });
-  addText(slide, "Goal\nConstraints\nShared brief", { left: 150, top: 292, width: 154, height: 88, fontSize: 22, color: NAVY, align: "center" });
-
-  const branches = [
-    [558, 164, "Research paper", "Facts and sources", GREEN, MINT],
-    [850, 272, "Design paper", "Slide structure", PURPLE, PURPLE_PALE],
-    [558, 414, "QA paper", "Review findings", ORANGE, YELLOW],
-  ];
-  branches.forEach(([left, top, title, body, color, fill], i) => {
-    const elbowX = i === 1 ? 804 : 512;
-    addLine(slide, { left: 388, top: 326, width: elbowX - 388, color, weight: 3 });
-    if (top + 70 >= 326) {
-      addLine(slide, { left: elbowX, top: 326, width: 0, height: top + 70 - 326, color, weight: 3 });
-    } else {
-      addLine(slide, { left: elbowX, top: top + 70, width: 0, height: 326 - (top + 70), color, weight: 3 });
+  cards.forEach(([title, body, color, fill, icon], i) => {
+    const x = 96 + i * 216;
+    miniIcon(slide, icon, x + 58, 204, color);
+    paper(slide, { left: x, top: 262, width: 166, height: 152, title, fill, lineColor: color, titleColor: color });
+    text(slide, body, { left: x + 28, top: 334, width: 110, height: 34, fontSize: 15, color: NAVY, bold: true, align: "center" });
+    if (i === 2) {
+      paper(slide, { left: x + 18, top: 424, width: 56, height: 54, title: "A", fill: "white", lineColor: color, titleColor: color });
+      paper(slide, { left: x + 92, top: 424, width: 56, height: 54, title: "B", fill: "white", lineColor: color, titleColor: color });
     }
-    addLine(slide, { left: elbowX, top: top + 70, width: left - elbowX, color, arrow: true, weight: 3 });
-    addPaper(slide, { left, top, width: 246, height: 156, title, fill, line: color });
-    addText(slide, body, { left: left + 54, top: top + 78, width: 140, height: 40, fontSize: 18, color: NAVY, align: "center" });
-    addBadge(slide, String(i + 1), { left: left + 98, top: top - 18, color, size: 38 });
+    if (i < cards.length - 1) line(slide, { left: x + 174, top: 338, width: 34, arrow: true, weight: 2, color: MID });
   });
 
-  addShape(slide, { left: 920, top: 500, width: 230, height: 70, fill: PALE, line: BLUE, radius: "rounded-lg" });
-  addText(slide, "Return boundary", { left: 946, top: 512, width: 178, height: 22, fontSize: 19, color: BLUE, bold: true, align: "center" });
-  addText(slide, "summary or artifact", { left: 960, top: 540, width: 150, height: 18, fontSize: 16, color: NAVY, align: "center" });
-
-  addFooterCallout(slide, {
-    label: "Key point",
-    text: "A subagent does not enlarge one context window; it moves local work onto another paper.",
-    fill: LIGHT_BLUE,
-    line: BLUE,
-    color: BLUE,
-  });
+  keyPanel(slide, ["Stable role -> agent", "Independent branch -> subagent", "Conditional method -> skill"], { height: 330, color: BLUE });
+  mentalModel(slide, "Do not put every reusable idea in the same place. Match the object to the loading problem.", { color: BLUE });
   return slide;
 }
 
-function slide5(presentation) {
-  const slide = presentation.slides.add();
+function slide10(p) {
+  const slide = p.slides.add();
   slide.background.fill = "white";
-  addHeader(slide, "Subagents Avoid Waiting for Compaction", "Plan separate papers before one paper becomes overloaded.", 4);
+  header(slide, "Takeaway: Design How Instructions Travel", "Prompt engineering writes instructions; context architecture routes them.");
 
-  addShape(slide, { left: 70, top: 174, width: 522, height: 356, fill: RED_PALE, line: "#f0b5b5", radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Reactive compaction", { left: 142, top: 204, width: 378, height: 32, fontSize: 30, color: RED, bold: true, align: "center" });
-  addShape(slide, { left: 138, top: 272, width: 176, height: 142, fill: "white", line: RED, radius: "rounded-lg" });
-  addText(slide, "Full paper", { left: 162, top: 298, width: 128, height: 24, fontSize: 22, color: RED, bold: true, align: "center" });
-  addText(slide, "many turns\nlogs\nnotes\nfiles\nerrors", { left: 170, top: 334, width: 112, height: 70, fontSize: 15, color: NAVY, align: "center" });
-  addLine(slide, { left: 334, top: 348, width: 84, arrow: true, weight: 4, color: RED });
-  addShape(slide, { left: 430, top: 292, width: 138, height: 110, fill: "white", line: RED, radius: "rounded-lg" });
-  addText(slide, "Summary", { left: 448, top: 316, width: 102, height: 22, fontSize: 17, color: RED, bold: true, align: "center" });
-  addText(slide, "detail is\ncompressed", { left: 450, top: 354, width: 98, height: 36, fontSize: 13, color: NAVY, align: "center" });
-  addText(slide, "Keeps continuity, but may lose exact wording or edge detail.", { left: 130, top: 462, width: 402, height: 42, fontSize: 18, color: NAVY, align: "center" });
-
-  addShape(slide, { left: 688, top: 174, width: 522, height: 356, fill: MINT, line: GREEN, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Proactive split", { left: 760, top: 204, width: 378, height: 32, fontSize: 30, color: GREEN, bold: true, align: "center" });
-  ["Task A", "Task B", "Task C"].forEach((label, i) => {
-    const left = 746 + i * 144;
-    addShape(slide, { left, top: 276, width: 132, height: 118, fill: "white", line: GREEN, radius: "rounded-lg" });
-    addText(slide, label, { left: left + 16, top: 306, width: 100, height: 24, fontSize: 22, color: GREEN, bold: true, align: "center" });
-    addText(slide, "local\ndetail", { left: left + 28, top: 348, width: 76, height: 34, fontSize: 15, color: NAVY, align: "center" });
-  });
-  addText(slide, "Each branch keeps local detail.", { left: 770, top: 440, width: 358, height: 24, fontSize: 20, color: NAVY, bold: true, align: "center" });
-  addText(slide, "Merge through summaries, files, or checkpoints.", { left: 770, top: 474, width: 358, height: 22, fontSize: 18, color: GREEN, align: "center" });
-
-  addFooterCallout(slide, {
-    label: "Principle",
-    text: "If one person needs many scratch papers, use multiple workers with one paper each.",
-    fill: YELLOW,
-    line: "#f0d891",
-    color: ORANGE,
-  });
-  return slide;
-}
-
-function slide6(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Good Subagent Tasks Have Clean Merge Boundaries", "Split where branches can work before they need fresh shared state.", 5);
-
-  const good = [
-    ["Independent", "Can progress without constant cross-talk."],
-    ["Bounded", "Clear input, output, and stop condition."],
-    ["Parallel", "Multiple branches can run at the same time."],
-    ["Mergeable", "Returns findings, artifact, patch, or summary."],
+  userFigure(slide, 68, 260, 0.76);
+  const route = [
+    ["Write", BLUE, "pen"],
+    ["Package", GREEN, "package"],
+    ["Split", ORANGE, "split"],
+    ["Load", PURPLE, "load"],
+    ["Workflow", RED, "merge"],
   ];
-  addShape(slide, { left: 70, top: 172, width: 540, height: 338, fill: LIGHT_BLUE, line: BLUE, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Good split", { left: 160, top: 204, width: 360, height: 32, fontSize: 30, color: BLUE, bold: true, align: "center" });
-  good.forEach(([title, body], i) => {
-    const top = 264 + i * 56;
-    addBadge(slide, String(i + 1), { left: 126, top: top + 2, color: BLUE, size: 34 });
-    addText(slide, title, { left: 176, top, width: 146, height: 22, fontSize: 19, color: BLUE, bold: true });
-    addText(slide, body, { left: 330, top: top + 1, width: 218, height: 36, fontSize: 15, color: NAVY });
+  route.forEach(([label, color, icon], i) => {
+    const x = 248 + i * 132;
+    miniIcon(slide, icon, x + 34, 248, color);
+    paper(slide, { left: x, top: 310, width: 112, height: 104, title: label, fill: "white", lineColor: color, titleColor: color });
+    if (i < route.length - 1) line(slide, { left: x + 116, top: 362, width: 20, arrow: true, weight: 2, color: MID });
   });
+  robotFigure(slide, 870, 286, 0.52, "Workflow");
+  shape(slide, { left: 348, top: 478, width: 220, height: 52, fill: YELLOW, line: ORANGE, radius: "rounded-md" });
+  text(slide, "Lesson 2.1\nruntime contracts", { left: 366, top: 488, width: 184, height: 34, fontSize: 15, color: ORANGE, bold: true, align: "center" });
+  shape(slide, { left: 608, top: 478, width: 220, height: 52, fill: LIGHT_BLUE, line: BLUE, radius: "rounded-md" });
+  text(slide, "Lesson 3: workflows", { left: 628, top: 494, width: 180, height: 16, fontSize: 15, color: BLUE, bold: true, align: "center" });
 
-  addShape(slide, { left: 700, top: 172, width: 510, height: 338, fill: RED_PALE, line: "#f0b5b5", radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Harder split", { left: 790, top: 204, width: 330, height: 32, fontSize: 30, color: RED, bold: true, align: "center" });
-  [
-    ["One changing source of truth", "Every branch needs the latest state."],
-    ["Tiny tasks", "Coordination costs more than execution."],
-    ["Unclear merge output", "No obvious artifact to return."],
-  ].forEach(([title, body], i) => {
-    const top = 282 + i * 70;
-    addText(slide, title, { left: 762, top, width: 360, height: 22, fontSize: 20, color: RED, bold: true });
-    addText(slide, body, { left: 762, top: top + 28, width: 370, height: 22, fontSize: 17, color: NAVY });
-    addLine(slide, { left: 736, top: top + 10, width: 12, color: RED, weight: 4 });
-  });
-
-  addFooterCallout(slide, {
-    label: "Not a ban",
-    text: "Strong coupling is not automatic failure. The real test is sync frequency and merge clarity.",
-    fill: PALE,
-    line: BORDER,
-    color: BLUE,
-  });
-  return slide;
-}
-
-function slide7(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Skill: Load the Prompt Only When the Task Needs It", "Use skills for methods that may or may not apply in a complex run.", 6);
-
-  addPaper(slide, { left: 76, top: 196, width: 300, height: 272, title: "Current paper", line: BLUE });
-  addText(slide, "Task:\nImprove Lesson 2\n\nUnknown:\nWill we need\nPPT QA?\nDocs lookup?\nImage workflow?", {
-    left: 140,
-    top: 266,
-    width: 170,
-    height: 156,
-    fontSize: 18,
-    color: NAVY,
-    align: "center",
-  });
-
-  addLine(slide, { left: 410, top: 336, width: 92, arrow: true, weight: 4, color: PURPLE });
-
-  addShape(slide, { left: 530, top: 170, width: 270, height: 330, fill: PURPLE_PALE, line: PURPLE, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Skill registry", { left: 570, top: 202, width: 190, height: 30, fontSize: 27, color: PURPLE, bold: true, align: "center" });
-  [
-    ["slides", "loaded"],
-    ["docs", "loaded"],
-    ["pdf", "outside"],
-    ["sheets", "outside"],
-    ["image", "later"],
-  ].forEach(([name, state], i) => {
-    const active = state === "loaded";
-    addShape(slide, { left: 560, top: 260 + i * 42, width: 210, height: 30, fill: active ? "white" : "#fbf8ff", line: active ? PURPLE : "#d7c7ef", radius: "rounded-md" });
-    addText(slide, name, { left: 580, top: 266 + i * 42, width: 86, height: 16, fontSize: 15, color: active ? PURPLE : MID, bold: active });
-    addText(slide, state, { left: 680, top: 266 + i * 42, width: 70, height: 16, fontSize: 13, color: active ? GREEN : MID, align: "right" });
-  });
-
-  addLine(slide, { left: 830, top: 336, width: 92, arrow: true, weight: 4, color: PURPLE });
-
-  addPaper(slide, { left: 954, top: 196, width: 250, height: 272, title: "Loaded paper", line: GREEN, fill: MINT });
-  addText(slide, "Only relevant\nmanuals,\nchecklists,\nand examples\nenter now.", {
-    left: 1006,
-    top: 296,
-    width: 146,
-    height: 116,
-    fontSize: 21,
-    color: NAVY,
-    align: "center",
-  });
-
-  addFooterCallout(slide, {
-    label: "Use when",
-    text: "You cannot know upfront which prompt pack, checklist, or reference will be useful.",
-    fill: PURPLE_PALE,
-    line: PURPLE,
-    color: PURPLE,
-  });
-  return slide;
-}
-
-function slide8(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Skill Bundles Prompts, Scripts, and Examples", "A reusable capability is often a small folder, not a single prompt.", 7);
-
-  addShape(slide, { left: 86, top: 174, width: 354, height: 356, fill: PALE, line: BLUE, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Prompt only", { left: 142, top: 210, width: 240, height: 30, fontSize: 28, color: BLUE, bold: true, align: "center" });
-  addPromptBlock(slide, {
-    left: 136,
-    top: 292,
-    width: 254,
-    height: 116,
-    title: "custom prompt",
-    body: "Follow these steps...\nUse this format...\nCheck these cases...",
-    color: BLUE,
-    fill: LIGHT_BLUE,
-  });
-  addText(slide, "Good for simple reuse.", { left: 144, top: 452, width: 236, height: 24, fontSize: 19, color: NAVY, align: "center" });
-
-  addLine(slide, { left: 468, top: 350, width: 74, arrow: true, weight: 4, color: GREEN });
-
-  addShape(slide, { left: 572, top: 154, width: 626, height: 396, fill: MINT, line: GREEN, radius: "rounded-lg", shadow: "shadow-sm" });
-  addText(slide, "Skill folder", { left: 720, top: 188, width: 330, height: 34, fontSize: 32, color: GREEN, bold: true, align: "center" });
-  const files = [
-    ["SKILL.md", "when to use it and workflow rules", GREEN],
-    ["scripts/", "repeatable operations", BLUE],
-    ["examples/", "good outputs and patterns", PURPLE],
-    ["templates/", "starting documents or deck frames", ORANGE],
-    ["references/", "detailed guidance loaded as needed", RED],
-  ];
-  files.forEach(([name, body, color], i) => {
-    const top = 252 + i * 52;
-    addShape(slide, { left: 642, top, width: 478, height: 38, fill: "white", line: "#b8dec8", radius: "rounded-md" });
-    addText(slide, name, { left: 660, top: top + 8, width: 126, height: 18, fontSize: 16, color, bold: true });
-    addText(slide, body, { left: 800, top: top + 8, width: 292, height: 18, fontSize: 16, color: NAVY });
-  });
-
-  addFooterCallout(slide, {
-    label: "Design rule",
-    text: "Keep prompts, scripts, examples, and references together.",
-    fill: MINT,
-    line: GREEN,
-    color: GREEN,
-  });
-  return slide;
-}
-
-function slide9(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Choose the Right Prompt-Scaling Pattern", "Do not put every reusable idea into the same object.", 8);
-
-  const columns = [
-    ["One-off prompt", "This task only", "Current paper", "Use for temporary details.", BLUE, LIGHT_BLUE],
-    ["Custom agent", "Stable role", "Reusable profile", "Use for recurring worker behavior.", GREEN, MINT],
-    ["Subagent", "Independent branch", "Separate paper", "Use when local detail should stay outside main context.", ORANGE, YELLOW],
-    ["Skill", "Conditional method", "Just-in-time pack", "Use when the method may or may not be needed.", PURPLE, PURPLE_PALE],
-  ];
-  columns.forEach(([title, trigger, where, use, color, fill], i) => {
-    const left = 60 + i * 304;
-    addShape(slide, { left, top: 170, width: 268, height: 360, fill, line: color, radius: "rounded-lg", shadow: "shadow-sm" });
-    addText(slide, title, { left: left + 18, top: 202, width: 232, height: 30, fontSize: 22, color, bold: true, align: "center" });
-    addLine(slide, { left: left + 38, top: 250, width: 192, color, weight: 2 });
-    addText(slide, "Trigger", { left: left + 34, top: 278, width: 200, height: 20, fontSize: 16, color, bold: true, align: "center" });
-    addText(slide, trigger, { left: left + 34, top: 306, width: 200, height: 36, fontSize: 17, color: NAVY, align: "center" });
-    addText(slide, "Lives as", { left: left + 34, top: 358, width: 200, height: 20, fontSize: 16, color, bold: true, align: "center" });
-    addText(slide, where, { left: left + 34, top: 386, width: 200, height: 36, fontSize: 17, color: NAVY, align: "center" });
-    addText(slide, use, { left: left + 32, top: 454, width: 204, height: 48, fontSize: 15, color: NAVY, bold: true, align: "center" });
-  });
-
-  addFooterCallout(slide, {
-    label: "Shortcut",
-    text: "Stable role -> agent. Independent branch -> subagent. Conditional method -> skill.",
-    fill: PALE,
-    line: BORDER,
-    color: BLUE,
-  });
-  return slide;
-}
-
-function slide10(presentation) {
-  const slide = presentation.slides.add();
-  slide.background.fill = "white";
-  addHeader(slide, "Takeaway: Design Prompt Loading", "The question is not only what to write, but where and when to load it.", 9);
-
-  addShape(slide, { left: 82, top: 176, width: 1116, height: 316, fill: PALE, line: BORDER, radius: "rounded-lg", shadow: "shadow-sm" });
-  const ladder = [
-    ["Write", "one-off task prompt", BLUE],
-    ["Package", "custom agent for stable roles", GREEN],
-    ["Split", "subagent papers for local branches", ORANGE],
-    ["Load", "skill packs when relevant", PURPLE],
-    ["Workflow", "Lesson 3 orchestration", RED],
-  ];
-  ladder.forEach(([verb, body, color], i) => {
-    const left = 120 + i * 210;
-    addShape(slide, { left, top: 240, width: 168, height: 138, fill: "white", line: color, radius: "rounded-lg" });
-    addBadge(slide, String(i + 1), { left: left + 64, top: 218, color, size: 40 });
-    addText(slide, verb, { left: left + 20, top: 272, width: 128, height: 26, fontSize: 22, color, bold: true, align: "center" });
-    addText(slide, body, { left: left + 18, top: 314, width: 132, height: 42, fontSize: 16, color: NAVY, align: "center" });
-    if (i < ladder.length - 1) addLine(slide, { left: left + 174, top: 310, width: 34, arrow: true, weight: 2, color: MID });
-  });
-
-  addShape(slide, { left: 126, top: 526, width: 456, height: 74, fill: YELLOW, line: "#f0d891", radius: "rounded-lg" });
-  addText(slide, "Lesson 2.1", { left: 166, top: 544, width: 130, height: 24, fontSize: 21, color: ORANGE, bold: true });
-  addText(slide, "Advanced runtime objects and contracts.", { left: 310, top: 546, width: 230, height: 22, fontSize: 17, color: NAVY });
-
-  addShape(slide, { left: 698, top: 526, width: 456, height: 74, fill: LIGHT_BLUE, line: BLUE, radius: "rounded-lg" });
-  addText(slide, "Lesson 3", { left: 738, top: 544, width: 108, height: 24, fontSize: 21, color: BLUE, bold: true });
-  addText(slide, "Multiple papers become an agentic workflow.", { left: 862, top: 546, width: 248, height: 22, fontSize: 17, color: NAVY });
-
-  addFooterCallout(slide, {
-    label: "Final model",
-    text: "Prompt engineering writes instructions; context architecture decides how they travel.",
-    fill: LIGHT_BLUE,
-    line: BLUE,
-    color: BLUE,
-  });
+  keyPanel(slide, ["Prompts are instructions", "Context has limited space", "Architecture decides travel"], { height: 330, color: BLUE });
+  mentalModel(slide, "Prompt engineering writes instructions; context architecture decides where they travel.", { color: BLUE });
   return slide;
 }
 
@@ -604,7 +507,6 @@ async function main() {
   await fs.mkdir(previewDir, { recursive: true });
 
   const designPresentation = Presentation.create({ slideSize: { width: 1280, height: 720 } });
-
   builders.forEach((build, index) => {
     const slide = build(designPresentation);
     slide.speakerNotes.textFrame.setText(slideMeta[index].notes);
@@ -613,27 +515,22 @@ async function main() {
 
   for (const [index, slide] of designPresentation.slides.items.entries()) {
     const stem = `slide-${String(index + 1).padStart(2, "0")}`;
-    const png = await designPresentation.export({ slide, format: "png", scale: 1 });
-    await writeBlob(path.join(previewDir, `${stem}.png`), png);
+    await writeBlob(path.join(previewDir, `${stem}.png`), await designPresentation.export({ slide, format: "png", scale: 1 }));
     await writeBlob(path.join(assetDir, `${stem}.png`), await designPresentation.export({ slide, format: "png", scale: assetScale }));
     await normalizeLessonAsset(path.join(assetDir, `${stem}.png`));
     const layout = await slide.export({ format: "layout" });
     await fs.writeFile(path.join(previewDir, `${stem}.layout.json`), await layout.text());
   }
 
-  await writeBlob(
-    path.join(previewDir, "lesson-02-montage.webp"),
-    await designPresentation.export({ format: "webp", montage: true, scale: 1 })
-  );
+  await writeBlob(path.join(previewDir, "lesson-02-montage.webp"), await designPresentation.export({ format: "webp", montage: true, scale: 1 }));
 
   const deliveryPresentation = Presentation.create({ slideSize: { width: 1280, height: 720 } });
   for (const [index, meta] of slideMeta.entries()) {
     const slide = deliveryPresentation.slides.add();
     slide.background.fill = "white";
     const imagePath = path.join(assetDir, `slide-${String(index + 1).padStart(2, "0")}.png`);
-    const imageBytes = await fs.readFile(imagePath);
     slide.images.add({
-      blob: imageBytes,
+      blob: await fs.readFile(imagePath),
       contentType: "image/png",
       alt: `Lesson 2 slide ${index + 1}`,
       fit: "contain",
