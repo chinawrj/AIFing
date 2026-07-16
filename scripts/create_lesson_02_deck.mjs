@@ -155,13 +155,15 @@ function addPaper(slide, { left, top, width, height, title = "Paper", fill = "wh
 function addPromptBlock(slide, { left, top, width, height, title, body, color = BLUE, fill = PALE }) {
   addShape(slide, { left, top, width, height, fill, line: color, radius: "rounded-md" });
   addText(slide, title, { left: left + 16, top: top + 10, width: width - 32, height: 22, fontSize: 17, color, bold: true, align: "center" });
-  addText(slide, body, { left: left + 18, top: top + 38, width: width - 36, height: height - 44, fontSize: 14, color: NAVY, align: "center" });
+  if (body) {
+    addText(slide, body, { left: left + 18, top: top + 40, width: width - 36, height: height - 44, fontSize: 13, color: NAVY, align: "center" });
+  }
 }
 
 function addFooterCallout(slide, { label, text, fill = YELLOW, line = "#f0d891", color = ORANGE }) {
   addShape(slide, { left: 68, top: 606, width: 1144, height: 66, fill, line, radius: "rounded-lg", shadow: "shadow-sm" });
   addText(slide, label, { left: 104, top: 626, width: 190, height: 24, fontSize: 22, color, bold: true });
-  addText(slide, text, { left: 320, top: 624, width: 840, height: 28, fontSize: 21, color: NAVY });
+  addText(slide, text, { left: 320, top: 620, width: 840, height: 40, fontSize: 19, color: NAVY });
 }
 
 function slide1(presentation) {
@@ -214,12 +216,12 @@ function slide2(presentation) {
 
   addPaper(slide, { left: 70, top: 178, width: 418, height: 348, title: "One crowded paper", line: RED });
   [
-    ["Role rules", "You are a senior reviewer...", RED, RED_PALE],
-    ["Checklist", "Check docs, tests, security...", ORANGE, YELLOW],
-    ["Format rules", "Use table, cite files, no fluff...", BLUE, LIGHT_BLUE],
-    ["Edge cases", "If API changes, compare versions...", PURPLE, PURPLE_PALE],
+    ["Role rules", "", RED, RED_PALE],
+    ["Checklist", "", ORANGE, YELLOW],
+    ["Format rules", "", BLUE, LIGHT_BLUE],
+    ["Edge cases", "", PURPLE, PURPLE_PALE],
   ].forEach(([title, body, color, fill], i) => {
-    addPromptBlock(slide, { left: 130, top: 246 + i * 58, width: 286, height: 46, title, body, color, fill });
+    addPromptBlock(slide, { left: 126, top: 242 + i * 68, width: 294, height: 52, title, body, color, fill });
   });
 
   addLine(slide, { left: 518, top: 346, width: 80, arrow: true, weight: 4, color: RED });
@@ -228,20 +230,20 @@ function slide2(presentation) {
     ["Token cost", "Every unused rule still consumes attention."],
     ["Prompt drift", "Copies change in different places."],
     ["Maintenance", "No clear owner for the latest version."],
-    ["Compaction risk", "Long prompts push real task detail out sooner."],
+    ["Compaction", "Long prompts push task detail out sooner."],
   ];
   problems.forEach(([title, body], i) => {
     const left = 632 + (i % 2) * 280;
     const top = 210 + Math.floor(i / 2) * 142;
     addShape(slide, { left, top, width: 246, height: 106, fill: i % 2 ? PALE : LIGHT_BLUE, line: BORDER, radius: "rounded-lg" });
     addBadge(slide, String(i + 1), { left: left + 18, top: top + 32, color: RED, size: 38 });
-    addText(slide, title, { left: left + 70, top: top + 24, width: 146, height: 24, fontSize: 21, color: RED, bold: true });
-    addText(slide, body, { left: left + 70, top: top + 54, width: 152, height: 34, fontSize: 15, color: NAVY });
+    addText(slide, title, { left: left + 68, top: top + 22, width: 154, height: 24, fontSize: 20, color: RED, bold: true });
+    addText(slide, body, { left: left + 68, top: top + 52, width: 154, height: 42, fontSize: 14, color: NAVY });
   });
 
   addFooterCallout(slide, {
     label: "Question",
-    text: "Which prompts should be packaged, which should be split, and which should load later?",
+    text: "Which prompts should be packaged, split, or loaded later?",
     fill: LIGHT_BLUE,
     line: BLUE,
     color: BLUE,
@@ -439,16 +441,16 @@ function slide7(presentation) {
   addShape(slide, { left: 530, top: 170, width: 270, height: 330, fill: PURPLE_PALE, line: PURPLE, radius: "rounded-lg", shadow: "shadow-sm" });
   addText(slide, "Skill registry", { left: 570, top: 202, width: 190, height: 30, fontSize: 27, color: PURPLE, bold: true, align: "center" });
   [
-    ["presentations", "loaded"],
-    ["openai-docs", "loaded"],
+    ["slides", "loaded"],
+    ["docs", "loaded"],
     ["pdf", "outside"],
-    ["spreadsheets", "outside"],
-    ["imagegen", "only if needed"],
+    ["sheets", "outside"],
+    ["image", "later"],
   ].forEach(([name, state], i) => {
     const active = state === "loaded";
-    addShape(slide, { left: 570, top: 260 + i * 42, width: 190, height: 30, fill: active ? "white" : "#fbf8ff", line: active ? PURPLE : "#d7c7ef", radius: "rounded-md" });
-    addText(slide, name, { left: 586, top: 266 + i * 42, width: 104, height: 16, fontSize: 15, color: active ? PURPLE : MID, bold: active });
-    addText(slide, state, { left: 694, top: 266 + i * 42, width: 52, height: 16, fontSize: 13, color: active ? GREEN : MID, align: "right" });
+    addShape(slide, { left: 560, top: 260 + i * 42, width: 210, height: 30, fill: active ? "white" : "#fbf8ff", line: active ? PURPLE : "#d7c7ef", radius: "rounded-md" });
+    addText(slide, name, { left: 580, top: 266 + i * 42, width: 86, height: 16, fontSize: 15, color: active ? PURPLE : MID, bold: active });
+    addText(slide, state, { left: 680, top: 266 + i * 42, width: 70, height: 16, fontSize: 13, color: active ? GREEN : MID, align: "right" });
   });
 
   addLine(slide, { left: 830, top: 336, width: 92, arrow: true, weight: 4, color: PURPLE });
