@@ -56,6 +56,7 @@
 ## Content
 
 - [Course outline](docs/course-outline.md)
+- [Project agent instructions](AGENTS.md)
 - [Lesson 1 assets](docs/lesson-01/README.md)
 - [Lesson 1 presenter guide](docs/lesson-01/presenter-guide.md)
 - [Lesson 1 PowerPoint deck](decks/lesson-01-ai-fundamentals.pptx)
