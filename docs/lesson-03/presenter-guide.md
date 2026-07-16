@@ -1,6 +1,6 @@
 # Lesson 3 Presenter Guide
 
-Lesson 3 is ready to run as a 10-slide training deck. It builds on Lesson 1's Paper Model and Lesson 2's Harness Engineering.
+Lesson 3 is ready to run as a 10-slide training deck. It builds on Lesson 1's Paper Model and Lesson 2's custom prompt scaling strategy.
 
 ## Audience
 

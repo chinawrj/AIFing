@@ -1,12 +1,13 @@
 # Lesson 2 Assets
 
-Lesson 2: **Harness Engineering: Instructions, Agents, Skills, and Tool Runtime**
+Lesson 2: **Custom Prompts at Scale: Custom Agents, Subagents, and Skills**
 
-这些图片服务于课程第二部分，用来解释 Harness / Runtime 如何把一个模型变成可用、可控、可审计的 AI 系统。
+这些图片服务于课程第二部分，用来解释如何把 Lesson 1 中的 custom prompts 规模化：稳定角色打包成 custom agents，低耦合任务拆给 subagents，不确定是否需要的 prompt 做成按需加载的 skills。
 
 ## Training Deliverables
 
-- [PowerPoint deck](../../decks/lesson-02-harness-engineering.pptx)
+- [PowerPoint deck](../../decks/lesson-02-custom-prompts-at-scale.pptx)
+- [Legacy-compatible deck filename](../../decks/lesson-02-harness-engineering.pptx)
 - [Presenter guide](presenter-guide.md)
 - [Sources](sources.md)
 
@@ -14,55 +15,55 @@ Lesson 2: **Harness Engineering: Instructions, Agents, Skills, and Tool Runtime*
 
 | File | Course Section | Purpose |
 |---|---|---|
-| `assets/slide-01.png` | 2.1 Why Harness Is Needed | 从 Lesson 1 的模型视角过渡到 Lesson 2 的运行时视角 |
-| `assets/slide-02.png` | 2.1 Model vs Harness | 区分模型的 token generation 和 Harness 的运行时管理责任 |
-| `assets/slide-03.png` | 2.2 Harness as Paper Manager | 解释 Harness 如何准备纸面、读取模型输出、执行工具并回写结果 |
-| `assets/slide-04.png` | 2.3 Core Responsibilities of Harness | 总览 Harness 的八项核心责任 |
-| `assets/slide-05.png` | 2.4 User Instructions | 解释用户指令适合稳定偏好，不适合敏感或临时状态 |
-| `assets/slide-06.png` | 2.5 Custom Agent | 解释 Custom Agent 是 packaged custom prompt 加 runtime profile |
-| `assets/slide-07.png` | 2.6 Skills | 解释 Skill 是按需动态加载的 custom prompt / manual |
-| `assets/slide-08.png` | 2.7 Prompt Extensions and Runtime Boundaries | 对比 prompt、user instruction、skill、custom agent 和 subagent bridge |
-| `assets/slide-09.png` | 2.8 Tool Call Lifecycle | 解释模型提出工具请求，模型外运行时执行并回写结果 |
-| `assets/slide-10.png` | 2.9-2.10 Harness Engineering in Practice | 收束到从 Prompt Engineering 到 Harness Engineering |
+| `assets/slide-01.png` | 2.1 Custom Prompts at Scale | 从 Lesson 1 的一张 paper 过渡到 prompt 复用、隔离、按需加载 |
+| `assets/slide-02.png` | 2.2 Copy-Paste Problem | 说明把所有 custom prompts 塞进一张 paper 会造成 context 压力 |
+| `assets/slide-03.png` | 2.3 Custom Agent | 解释 custom agent 是稳定 custom prompt 的工程化复用形态 |
+| `assets/slide-04.png` | 2.4 Subagent | 解释 subagent 是带有独立 paper 的 delegated run |
+| `assets/slide-05.png` | 2.5 Compaction vs Proactive Split | 对比 reactive compaction 和 proactive multi-paper split |
+| `assets/slide-06.png` | 2.6 Merge Boundaries | 说明什么任务适合交给 subagents，什么任务需要更谨慎 |
+| `assets/slide-07.png` | 2.7 Skill | 解释 skill 是按需加载的 prompt/manual pack |
+| `assets/slide-08.png` | 2.8 Skill Folder | 说明 skill 可以和 scripts、examples、templates、references 组织在一起 |
+| `assets/slide-09.png` | 2.9 Selection Rule | 对比 one-off prompt、custom agent、subagent、skill 的使用场景 |
+| `assets/slide-10.png` | 2.10 Prompt Loading Strategy | 收束到 prompt loading strategy，并引出 Lesson 2.1 和 Lesson 3 |
 
 ## Images
 
-### 2.1 Why Harness Is Needed
+### 2.1 Custom Prompts at Scale
 
-![Why Harness Is Needed](assets/slide-01.png)
+![Custom Prompts at Scale](assets/slide-01.png)
 
-### 2.1 Model vs Harness
+### 2.2 Copy-Paste Problem
 
-![Model vs Harness](assets/slide-02.png)
+![Copy-Paste Problem](assets/slide-02.png)
 
-### 2.2 Harness as Paper Manager
+### 2.3 Custom Agent
 
-![Harness as Paper Manager](assets/slide-03.png)
+![Custom Agent](assets/slide-03.png)
 
-### 2.3 Core Responsibilities of Harness
+### 2.4 Subagent
 
-![Core Responsibilities of Harness](assets/slide-04.png)
+![Subagent](assets/slide-04.png)
 
-### 2.4 User Instructions
+### 2.5 Compaction vs Proactive Split
 
-![User Instructions](assets/slide-05.png)
+![Compaction vs Proactive Split](assets/slide-05.png)
 
-### 2.5 Custom Agent
+### 2.6 Merge Boundaries
 
-![Custom Agent](assets/slide-06.png)
+![Merge Boundaries](assets/slide-06.png)
 
-### 2.6 Skills
+### 2.7 Skill
 
-![Skills](assets/slide-07.png)
+![Skill](assets/slide-07.png)
 
-### 2.7 Prompt Extensions and Runtime Boundaries
+### 2.8 Skill Folder
 
-![Prompt Extensions and Runtime Boundaries](assets/slide-08.png)
+![Skill Folder](assets/slide-08.png)
 
-### 2.8 Tool Call Lifecycle
+### 2.9 Selection Rule
 
-![Tool Call Lifecycle](assets/slide-09.png)
+![Selection Rule](assets/slide-09.png)
 
-### 2.9-2.10 Harness Engineering in Practice
+### 2.10 Prompt Loading Strategy
 
-![Harness Engineering in Practice](assets/slide-10.png)
+![Prompt Loading Strategy](assets/slide-10.png)

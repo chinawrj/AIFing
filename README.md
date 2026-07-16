@@ -46,6 +46,7 @@
 ├── decks/
 │   ├── chapter-01-01-advanced-context-cache.pptx
 │   ├── lesson-03-agentic-workflows.pptx
+│   ├── lesson-02-custom-prompts-at-scale.pptx
 │   ├── lesson-02-harness-engineering.pptx
 │   ├── lesson-02-01-advanced-harness-objects.pptx
 │   └── lesson-01-ai-fundamentals.pptx
@@ -64,7 +65,8 @@
 - [Lesson 2 assets](docs/lesson-02/README.md)
 - [Lesson 2 presenter guide](docs/lesson-02/presenter-guide.md)
 - [Lesson 2 sources](docs/lesson-02/sources.md)
-- [Lesson 2 PowerPoint deck](decks/lesson-02-harness-engineering.pptx)
+- [Lesson 2 PowerPoint deck](decks/lesson-02-custom-prompts-at-scale.pptx)
+- [Lesson 2 legacy-compatible deck filename](decks/lesson-02-harness-engineering.pptx)
 - [Lesson 2 Advanced Add-on outline](docs/lesson-02-01-advanced/outline.md)
 - [Lesson 2 Advanced Add-on presenter guide](docs/lesson-02-01-advanced/presenter-guide.md)
 - [Lesson 2 Advanced Add-on PowerPoint deck](decks/lesson-02-01-advanced-harness-objects.pptx)
@@ -80,7 +82,7 @@
 - Lesson 1 has a 12-slide PowerPoint deck for training delivery.
 - Lesson 1 has a presenter guide with slide flow and transition notes.
 - Lesson 1 Advanced Add-on (`1.1`) adds a 6-slide deck on visible paper, prompt cache, cache write/read, and stable-prefix design.
-- Lesson 2 has a 10-slide PowerPoint deck on harness engineering, prompt loading strategy, skills, custom agent profiles, subagent bridge, and tool runtime.
+- Lesson 2 has a 10-slide PowerPoint deck on scaling custom prompts through custom agents, subagents, and skills.
 - Lesson 2 Advanced Add-on (`2.1`) adds a 6-slide deck on harness objects and runtime contracts.
 - Lesson 3 has a 10-slide PowerPoint deck on subagents, workflows, teammate mode, boundaries, and loop coding.
 - Later lessons can follow the same directory pattern under `docs/lesson-04/`, `docs/lesson-05/`, etc.

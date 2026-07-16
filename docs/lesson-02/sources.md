@@ -1,50 +1,33 @@
 # Lesson 2 Sources
 
-These references support the Harness / Runtime and tool-use terminology used in Lesson 2.
+These references support the custom prompt, custom agent, subagent, skill, and compaction terminology used in Lesson 2.
 
-Accessed: 2026-07-15
+Accessed: 2026-07-16
 
-## OpenAI
+## OpenAI / Codex
 
-- Codex subagents: https://developers.openai.com/codex/subagents
-- Codex subagent concepts: https://developers.openai.com/codex/concepts/subagents
+- Codex manual, Subagents: https://learn.chatgpt.com/docs/agent-configuration/subagents
+- Codex manual, Skills & Plugins: https://learn.chatgpt.com/docs/skills-and-plugins
+- Codex manual, Build skills: https://learn.chatgpt.com/docs/build-skills
 - Codex CLI slash commands (`/compact`, `/fork`): https://developers.openai.com/codex/cli/slash-commands
-- Codex sandboxing: https://developers.openai.com/codex/concepts/sandboxing
-- Agents SDK orchestration: https://developers.openai.com/api/docs/guides/agents/orchestration
-- Function calling: https://developers.openai.com/api/docs/guides/function-calling
-- Using tools: https://developers.openai.com/api/docs/guides/tools
-- Structured Outputs: https://developers.openai.com/api/docs/guides/structured-outputs
-- Conversation state: https://developers.openai.com/api/docs/guides/conversation-state
-- Safety in building agents: https://developers.openai.com/api/docs/guides/agent-builder-safety
-- Tool Search: https://developers.openai.com/api/docs/guides/tools-tool-search
+- Codex configuration reference for context and compaction settings: https://learn.chatgpt.com/docs/config-file/config-reference
 
 ## Anthropic
 
 - Claude Code subagents: https://docs.anthropic.com/en/docs/claude-code/sub-agents
+- Claude Code skills: https://docs.anthropic.com/en/docs/claude-code/skills
 - Claude Code hooks: https://docs.anthropic.com/en/docs/claude-code/hooks
-- Tool use overview: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview
-- How tool use works: https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works
-- Define tools: https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools
 - Context windows: https://platform.claude.com/docs/en/build-with-claude/context-windows
-
-## Model Context Protocol
-
-- MCP specification: https://modelcontextprotocol.io/specification/2025-11-25
-- MCP tools: https://modelcontextprotocol.io/specification/2025-11-25/server/tools
-- MCP prompts: https://modelcontextprotocol.io/specification/2025-11-25/server/prompts
-- MCP resources: https://modelcontextprotocol.io/specification/2025-11-25/server/resources
-- MCP lifecycle: https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle
-- MCP authorization: https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization
 
 ## Fact Boundaries Used In The Deck
 
-- The model generates text or structured tool-call requests; external execution is performed outside the model by a client harness, host runtime, MCP server, or provider-hosted tool.
-- Tool schemas constrain request shape, but they are not a complete safety boundary.
-- Tool definitions and related instructions consume context and input tokens.
-- Skills and prompt-like instructions reduce upfront context pressure only when they are selected or loaded on demand; once loaded, they still consume context.
-- Subagents can reduce main-thread context pollution by using a separate context for bounded local work, but they do not enlarge a single model call's context window.
-- A custom agent/profile is reusable configuration; a subagent is a delegated run or worker using its own context and return boundary.
-- In runtimes that support context forking, a subagent can inherit the parent thread's starting history. Its context then evolves independently, so initial context overlap is not the same as continuous shared-state synchronization.
-- Compaction and forking solve different problems: compaction reactively summarizes one evolving thread (automatically or on request); forking proactively preserves a shared starting point across separate branches that later need explicit merge or handoff boundaries.
-- Conversation state is runtime-managed state, not hidden model memory.
-- Retrieved content, files, webpages, and tool results are context data; they should not override higher-priority instructions.
+- A custom prompt is reusable instruction text; a custom agent is the engineering packaging of stable role instructions plus runtime profile and supported settings.
+- A subagent is a delegated run with its own context/paper and a return boundary such as a summary, finding list, artifact, or patch.
+- Subagents can reduce main-thread context pollution by moving noisy local work into separate agent threads, but they do not enlarge a single model call's context window.
+- Subagent workflows consume more total tokens because each subagent performs its own model and tool work.
+- In runtimes that support context forking, a subagent can inherit the parent thread's starting history; after the fork, the child context evolves independently.
+- Compaction summarizes a long visible conversation to free tokens. It preserves continuity but may compress away exact wording or edge detail.
+- Proactive subagent decomposition is usually more controllable than waiting for compaction when the work can be split into parallel, low-coupling, mergeable branches.
+- A skill packages reusable workflow instructions and supporting resources for a specific task. Codex-style skills use progressive disclosure: the skill's name and description help selection, while full instructions are loaded when the skill is used.
+- A loaded skill still consumes context. The benefit is keeping irrelevant prompt packs out of the paper until they are needed.
+- Skills can organize prompts with scripts, examples, templates, references, schemas, or tool guidance, but execution still depends on the current runtime, permissions, sandbox, MCP/app connectors, and approval mode.

@@ -574,475 +574,250 @@ Deliverables:
 
 ---
 
-# Lesson 2: Harness Engineering: Instructions, Agents, Skills, and Tool Runtime
+# Lesson 2: Custom Prompts at Scale: Custom Agents, Subagents, and Skills
 
-**Subtitle:** The software layer that turns a model into a usable system
+**Subtitle:** Reuse, split, and load prompt-like instructions without crowding one paper
 
 ## Lesson Goal
 
-Lesson 1 explains how the model reads and writes the paper. Lesson 2 explains:
+Lesson 1 explains how the model reads the current paper. Lesson 2 explains how to scale the prompts we put on that paper:
 
-> Who prepares the paper? Who prints rules on it? Who controls capacity? Who recognizes tool requests? Who writes tool results back?
-
-Answer:
-
-> Harness / Runtime / Host Application.
+> Do not paste every useful instruction into every task. Package stable roles, split low-coupling work into separate papers, and load conditional methods only when needed.
 
 Learners should understand:
 
-- Harness is the software control layer around the model.
-- Harness manages context, instructions, tools, permissions, and execution loops.
-- User instructions, custom agents, and skills are ways to configure the paper and tool environment.
-- Skills and custom agents are ways to package repeated prompt-like instructions so they do not have to be pasted manually each time.
-- Subagents are the next step when a task can branch after a shared starting context. Some runtimes can fork the current paper into each branch; subagent workflow design belongs in Lesson 3.
-- A good AI application is not just a model choice; it is harness design.
+- Custom prompts are useful, but copy-pasting them everywhere creates token cost, drift, maintenance burden, and compaction pressure.
+- A custom agent is a stable custom prompt packaged as a reusable worker profile with role, rules, tools, permissions, boundaries, and quality bar where supported.
+- A subagent is a delegated run with its own paper/context and a return boundary such as a summary, finding list, artifact, or patch.
+- Subagents do not enlarge a single context window; they reduce main-thread context pollution by moving bounded local work onto separate papers.
+- Compaction is reactive compression of one growing paper. Subagent decomposition is proactive context architecture when branches are weakly coupled and mergeable.
+- A skill is a dynamically loaded prompt/manual pack for a focused task or workflow.
+- A skill can organize instructions together with scripts, examples, templates, references, schemas, or tool guidance.
 
 ---
 
-## 2.1 Why Harness Is Needed
+## 2.1 Custom Prompts at Scale
 
 ### Core idea
 
-A model alone only does:
+Lesson 1 introduced the paper model: the model reads what is visible on the paper. Lesson 2 starts from a practical problem:
 
-```text
-read tokens → generate tokens
-```
+> If every useful custom prompt is always written on the same paper, the paper becomes crowded before the task itself is done.
 
-Real applications also need:
+The three scaling moves are:
 
-- Context construction
-- System rule injection
-- User preference management
-- Tool definition
-- Tool-call parsing
-- External execution
-- Error handling
-- Multi-turn loop control
-- Permission, safety, audit, logging
-- Compacting and retrieval strategies
-
-### Key phrase
-
-> Model is the token generator. Harness is the operating environment.
-
-### Suggested visual
-
-**Model vs Harness**
-
-```text
-Model
-- reads context
-- generates tokens
-```
-
-```text
-Harness
-- prepares context
-- injects instructions
-- manages tools
-- validates calls
-- writes results back
-- controls loops
-```
+| Move | Paper Model Meaning | Use When |
+|---|---|---|
+| Custom agent | Stable prompt becomes a reusable worker profile | The same role repeats |
+| Subagent | A branch gets its own paper | Work can split and later merge |
+| Skill | A method loads only when relevant | The prompt may or may not be needed |
 
 ---
 
-## 2.2 Harness as Paper Manager
+## 2.2 Copy-Pasted Custom Prompts Break the Paper
 
 ### Core idea
 
-In the Paper Model, Harness:
+Custom prompts fail at scale when they are copied into every task.
 
-1. Prepares the paper.
-2. Prints system prompts on the paper.
-3. Writes the user question onto the paper.
-4. Writes available tool definitions onto the paper.
-5. Gives the paper to the model.
-6. Reads what the model writes.
-7. Executes tool calls if valid.
-8. Writes tool results back to the paper.
-9. Gives the paper back to the model.
-10. Drops, summarizes, or retrieves content as needed.
+Problems:
 
-### Suggested visual
+- **Token cost:** unused rules still consume attention.
+- **Prompt drift:** different copies evolve differently.
+- **Maintenance:** no clear owner for the latest version.
+- **Compaction risk:** long instruction blocks push real task details out sooner.
 
-**Harness as Paper Manager**
+Key question:
 
-Center:
-
-```text
-Harness
-```
-
-Around it:
-
-```text
-User
-Model
-Paper / Context
-System Prompts
-Tools
-Memory
-Logs
-Permissions
-```
+> Which prompts should be packaged, which should be split, and which should load later?
 
 ---
 
-## 2.3 Core Responsibilities of Harness
-
-### Eight responsibilities
-
-1. **Context Construction**
-   - Assemble current context.
-   - Add user input, history, files, retrieval, and tool results.
-
-2. **Instruction Injection**
-   - Add system prompts.
-   - Add developer instructions.
-   - Add user instructions.
-   - Add agent-specific rules.
-
-3. **Tool Definition**
-   - Tell the model what tools are available.
-   - Define tool names, schemas, and usage rules.
-
-4. **Tool Call Parsing**
-   - Recognize structured tool-call output.
-   - Distinguish normal text from tool requests.
-
-5. **Validation & Permission**
-   - Validate arguments.
-   - Check permissions.
-   - Require human confirmation when needed.
-   - Block dangerous operations.
-
-6. **Execution**
-   - Call APIs, databases, file systems, browser, shell, MCP servers, etc.
-
-7. **Observation Writing**
-   - Write tool results back into context.
-   - Let the model continue based on new information.
-
-8. **Loop Control**
-   - Decide whether to call the model again.
-   - Decide when to stop.
-   - Handle failure, retry, timeout, and cost limits.
-
-### Suggested visual
-
-**Harness Responsibility Wheel**
-
----
-
-## 2.4 User Instructions
+## 2.3 Custom Agent
 
 ### Core idea
 
-User instructions are long-term preferences that the user wants attached to the paper.
-
-Good use cases:
-
-- Output language preference
-- Programming style
-- Common tech stack
-- Internal terminology
-- Common formatting requirements
-- Personal workflow preferences
-
-Poor use cases:
-
-- One-time task details
-- Sensitive information
-- Fast-changing temporary state
-- Large project documents
-
-### Key phrase
-
-> User instructions are persistent paper annotations.
-
-### Suggested visual
-
-**Paper with Sticky Notes**
-
-```text
-Always answer in Chinese
-Prefer TypeScript examples
-Use concise explanations
-```
-
----
-
-## 2.5 Custom Agent
-
-### Core idea
-
-A custom agent is a packaged work environment:
-
-> fixed role + fixed instructions + fixed tools + fixed permissions + fixed task boundary
-
-Another way to say it:
-
-> A custom agent is a reusable custom prompt plus a runtime profile.
-
-It packages repeated prompt-like instructions together with tools, permissions,
-quality standards, and stop conditions. It is not automatically a subagent; it
-becomes part of a subagent workflow only when the runtime starts a separate
-agent run with its own context.
-
-Examples:
-
-- Code Review Agent
-- Test Writer Agent
-- Security Review Agent
-- Data Analysis Agent
-- Documentation Agent
-- Customer Support Agent
-
-A custom agent often defines:
-
-- Role
-- Goal
-- Input format
-- Output format
-- Available tools
-- Forbidden behavior
-- Quality standard
-- Stop condition
-- Human-confirmation condition
-
-### Prompt vs Custom Agent
-
-Prompt:
-
-```text
-A temporary request written on the paper.
-```
-
-Custom Agent:
-
-```text
-A reusable paper template plus tool environment plus behavior rules.
-```
-
-### Suggested visual
-
-**Generic AI vs Custom Agent**
-
----
-
-## 2.6 Skills
-
-### Core idea
-
-When a task pattern repeats, do not paste the same long prompt every time. Turn it into a reusable skill.
+When the role and constraints are stable, turn the custom prompt into a custom agent.
 
 In Paper Model language:
 
-> A skill is a dynamically loaded custom prompt/manual.
+> A custom agent is a reusable paper template plus runtime profile.
 
-The point is not that the instruction disappears. The point is that the Harness
-can keep the full instruction outside the current paper until the task actually
-needs it. This protects the context budget from every possible checklist,
-template, and convention being loaded at once.
+It may define:
 
-A skill may include:
+- Role
+- Rules
+- Tools
+- Access / permissions
+- Task boundary
+- Stop condition
+- Quality bar
+- Model or reasoning settings where supported
+- Skills configuration where supported
 
-- Steps
-- Checklist
-- Output template
-- Examples
-- Reference files
-- Tool usage guidance
-- Project conventions
+Important boundary:
 
-Paper Model explanation:
-
-> A skill is like a reusable manual. When needed, the Harness or Agent places the relevant instructions onto the paper.
-
-### Example
-
-```text
-Skill: Generate API Client
-- Read OpenAPI spec
-- Generate typed client
-- Add tests
-- Run typecheck
-- Update docs
-```
-
-### Suggested visual
-
-**Skill Library**
-
-```text
-/debug
-/code-review
-/write-tests
-/generate-docs
-/deploy-checklist
-```
+> A custom agent is a profile. It becomes a subagent only when the runtime starts a separate delegated run.
 
 ---
 
-## 2.7 Tools, Skills, Agents, Harness
-
-| Concept | Essence | Paper Model Explanation | Example |
-|---|---|---|---|
-| Tool | External executable capability | AI writes request, Harness executes | Weather, read file, run tests |
-| Skill | Dynamically loaded reusable instruction | Manual placed onto the paper only when relevant | Code review checklist |
-| Custom Agent / Agent Profile | Packaged work environment | Reusable custom prompt plus tools, permissions, and task boundary | Security reviewer profile |
-| Subagent | Delegated work instance | Separate paper/context for a bounded local task | Research worker returning a summary |
-| Harness | Operating environment | Manages paper, tools, execution, results | IDE agent runtime |
-
-### Suggested visual
-
-**Prompt Extensions and Runtime Boundaries**
-
-### Multi-paper principle
-
-> If one person would need multiple sheets of scratch paper, first ask whether
-> the work can branch after a shared starting point. When it can, fork or brief
-> multiple subagents, let each continue on its own paper, and merge through
-> summaries, artifacts, or checkpoints.
-
-### Reactive compression vs proactive decomposition
-
-> Compaction is a reactive continuity mechanism: one paper becomes crowded, so
-> earlier detail is compressed into a smaller summary. Subagent decomposition
-> is proactive context architecture: plan the branches, give each branch its
-> own paper, and keep detailed local work until the merge boundary.
-
-Compaction can be automatic or manually triggered, so "reactive" is more
-precise than "passive." For work that can be planned into branches, proactive
-decomposition usually preserves more task-specific detail and makes context
-allocation more deliberate. Compaction remains useful inside the main thread
-and inside each subagent when a branch itself becomes long.
-
-Important nuances:
-
-- A forked subagent can inherit the parent thread's starting context. The papers
-  diverge only after the fork, so a large shared prefix is not by itself a
-  reason to keep one agent.
-- A single long-running agent may eventually compact its paper. Compaction
-  preserves continuity through a summary, but details can be compressed away.
-- Multiple papers let branches compact independently and keep detailed local
-  work off the main paper. They still do not enlarge any one model call's
-  context window.
-- The real decision is synchronization frequency and mergeability. If every
-  step needs the latest version of the same changing state, keep one owner or
-  introduce explicit handoff checkpoints; otherwise parallel papers usually
-  help.
-
----
-
-## 2.8 Tool Call Lifecycle
-
-### Core flow
-
-```text
-1. Harness tells model available tools
-2. User asks a question
-3. Model writes structured tool request
-4. Harness parses request
-5. Harness validates schema and permission
-6. Harness executes real tool
-7. Tool returns result
-8. Harness writes result into context
-9. Model reads result
-10. Model writes final response
-```
-
-### Failure paths
-
-Harness may reject execution when:
-
-- Tool does not exist.
-- Parameters are invalid.
-- Permission is missing.
-- Human confirmation is required.
-- Safety policy blocks it.
-- External service fails.
-- Result is too large.
-- Cost exceeds limit.
-
-### Suggested visual
-
-```text
-Proposed → Parsed → Validated → Executed → Observed → Answered
-                   ↓
-                Rejected
-```
-
----
-
-## 2.9 Harness Engineering in Practice
-
-### Minimal implementation components
-
-- Message builder
-- System prompt manager
-- Tool registry
-- Tool schema
-- Tool executor
-- Permission layer
-- Context manager
-- Conversation state
-- Logging / tracing
-- Error handling
-- Evaluation cases
-
-### Engineering suggestions
-
-- Keep tools small and clear.
-- Use strict parameter schemas.
-- Return structured tool results.
-- Do not let the model directly decide high-risk operations.
-- Use human approval for risky operations.
-- Design compacting strategy for long-context tasks.
-- Keep tool-call logs auditable.
-
-### Suggested visual
-
-**Production Harness Checklist**
-
----
-
-## 2.10 From Prompt Engineering to Harness Engineering
+## 2.4 Subagent
 
 ### Core idea
 
-> Beginner AI users optimize prompts. Advanced AI engineers design harnesses.
+A subagent gives a bounded branch its own working paper.
 
-Alternative phrase:
-
-> Prompt controls one message. Harness controls the whole interaction system.
-
-For this lesson, a more specific version is:
-
-> Harness engineering is prompt packaging, prompt selection, and runtime
-> enforcement.
-
-The progression is:
-
-### Suggested visual
+Useful subagent pattern:
 
 ```text
-Prompt
-  ↓
-Prompt Template
-  ↓
-User Instructions / Skills
-  ↓
-Custom Agent Profile
-  ↓
-Subagent Bridge
-  ↓
-Harness
-  ↓
-Workflow System
+Main paper
+  shared goal, constraints, starting context
+      ↓
+Subagent paper A: research
+Subagent paper B: design
+Subagent paper C: QA
+      ↓
+Summaries, artifacts, findings, patches
 ```
+
+Subagents help because the main thread does not need to carry every exploration note, log, test output, or local scratch detail. The main paper receives only the distilled result.
+
+Boundary:
+
+> A subagent does not enlarge any single model call's context window. It moves local work onto another paper.
+
+---
+
+## 2.5 Reactive Compaction vs Proactive Split
+
+### Core idea
+
+Compaction and subagents solve different context problems.
+
+| Mechanism | What Happens | Tradeoff |
+|---|---|---|
+| Compaction | One crowded paper is summarized to free space | Keeps continuity, but may compress away exact detail |
+| Subagent split | Work is planned across multiple papers before the main paper fills | Preserves local detail, but needs a merge boundary |
+
+Recommended wording:
+
+> For parallel, low-coupling, mergeable work, proactive subagent decomposition is usually more controllable than waiting for compaction.
+
+Also say:
+
+> A subagent branch can still compact later. These are complementary mechanisms, not opposites.
+
+---
+
+## 2.6 Good Subagent Tasks Have Clean Merge Boundaries
+
+### Use subagents when the task is:
+
+- **Independent:** a branch can progress without constant cross-talk.
+- **Bounded:** input, output, and stop condition are clear.
+- **Parallel:** multiple branches can run at the same time.
+- **Mergeable:** the result can return as findings, an artifact, a patch, or a summary.
+
+### Be careful when:
+
+- Every step depends on the same fast-changing source of truth.
+- The task is so small that coordination costs more than execution.
+- There is no clear artifact or summary format for merging.
+
+Important nuance:
+
+> Strong coupling is not an automatic ban. The real test is synchronization frequency and merge clarity.
+
+---
+
+## 2.7 Skill
+
+### Core idea
+
+Sometimes you do not know upfront whether a prompt, checklist, or method will be needed.
+
+In Paper Model language:
+
+> A skill is a prompt/manual pack that stays outside the paper until the task matches it.
+
+Use a skill for:
+
+- A workflow that repeats.
+- A checklist that is too long to keep always loaded.
+- A format or template that applies only in some cases.
+- A task-specific method, such as creating presentations, reviewing docs, or preparing a release.
+
+Boundary:
+
+> A loaded skill still consumes context. The benefit is keeping irrelevant skills out until needed.
+
+---
+
+## 2.8 Skill Folder
+
+### Core idea
+
+A skill can be more than one prompt. It can organize the method as a small reusable capability.
+
+A practical skill folder may include:
+
+```text
+SKILL.md       when to use it and workflow rules
+scripts/       repeatable operations
+examples/      good outputs and patterns
+templates/     starting documents or deck frames
+references/    detailed guidance loaded as needed
+```
+
+Design rule:
+
+> Keep prompts, scripts, examples, and references together so the method stays coherent.
+
+Execution boundary:
+
+> A skill can package scripts and guidance, but execution still depends on the runtime, sandbox, approvals, and available tools.
+
+---
+
+## 2.9 Choose the Right Prompt-Scaling Pattern
+
+| Object | Trigger | Lives As | Use For |
+|---|---|---|---|
+| One-off prompt | This task only | Current paper | Temporary details |
+| Custom agent | Stable role | Reusable profile | Recurring worker behavior |
+| Subagent | Independent branch | Separate paper | Local detail outside the main context |
+| Skill | Conditional method | Just-in-time pack | A method that may or may not be needed |
+
+Shortcut:
+
+> Stable role -> custom agent. Independent branch -> subagent. Conditional method -> skill.
+
+---
+
+## 2.10 Prompt Loading Strategy
+
+### Core idea
+
+> Prompt engineering writes instructions. Context architecture decides how instructions travel.
+
+The progression:
+
+```text
+Write one-off prompt
+  ↓
+Package stable roles as custom agents
+  ↓
+Split branch work into subagent papers
+  ↓
+Load conditional methods as skills
+  ↓
+Orchestrate multiple papers in Lesson 3
+```
+
+Lesson boundary:
+
+- Lesson 2.1 covers advanced runtime objects and contracts.
+- Lesson 3 covers subagent workflows, teammates, handoffs, and loop coding.
 
 ---
 
@@ -1051,7 +826,8 @@ Workflow System
 - [Lesson 2 assets](lesson-02/README.md)
 - [Lesson 2 presenter guide](lesson-02/presenter-guide.md)
 - [Lesson 2 sources](lesson-02/sources.md)
-- [Lesson 2 PowerPoint deck](../decks/lesson-02-harness-engineering.pptx)
+- [Lesson 2 PowerPoint deck](../decks/lesson-02-custom-prompts-at-scale.pptx)
+- [Lesson 2 legacy-compatible deck filename](../decks/lesson-02-harness-engineering.pptx)
 
 ---
 
@@ -1634,9 +1410,9 @@ Token / Context / Context Window / Compacting / Tools
 
         ↓
 
-Lesson 2: Harness
-Understand who manages the paper, pre-prints rules, parses tool calls, and executes external actions.
-Instructions / Custom Agent / Skills / Tool Runtime
+Lesson 2: Custom Prompts at Scale
+Understand how to reuse, split, and dynamically load prompt-like instructions.
+Custom Agent / Subagent / Skill / Prompt Loading Strategy
 
         ↓
 
@@ -1689,35 +1465,35 @@ Subagent / Workflow / Teammate / Loop Coding
 
 ## Lesson 2 Images
 
-1. **Lesson 2 Opening**
-   - Harness engineering as prompt packaging, prompt selection, and runtime enforcement.
+1. **Custom Prompts at Scale**
+   - Lesson 1 paper becomes prompt reuse, isolation, and just-in-time loading.
 
-2. **Model vs Harness**
-   - Model generates tokens; Harness manages context budget, instructions, tools, and execution.
+2. **Copy-Pasted Custom Prompts Break the Paper**
+   - Repeated rules create token cost, prompt drift, maintenance, and compaction pressure.
 
-3. **Harness as Paper Manager**
-   - Harness prepares paper, injects rules, reads tool calls, writes results.
+3. **Custom Agent as Packaged Custom Prompt**
+   - Stable roles and constraints become a reusable worker profile.
 
-4. **Harness Responsibility Control Surface**
-   - Context, instructions, tools, validation, execution, observation, loop, logging.
+4. **Subagent as Separate Paper**
+   - A delegated branch gets its own local context and returns a summary or artifact.
 
-5. **User Instructions as Persistent Annotations**
-   - Long-term preferences attached to the paper.
+5. **Compaction vs Proactive Split**
+   - Reactive compression of one paper versus planned multi-paper decomposition.
 
-6. **Custom Agent as Packaged Custom Prompt**
-   - Reusable prompt-like instructions plus tools, permissions, and boundaries.
+6. **Good Subagent Merge Boundaries**
+   - Independent, bounded, parallel, mergeable work is the best subagent target.
 
-7. **Skill as Dynamic Custom Prompt Pack**
-   - Load only the relevant manual into the current paper.
+7. **Skill as Just-in-Time Prompt Pack**
+   - Load the relevant manual only when the task needs it.
 
-8. **Prompt Extensions and Runtime Boundaries**
-   - Prompt, user instructions, skill, custom agent, subagent bridge, and context effect.
+8. **Skill Folder**
+   - Prompts, scripts, examples, templates, and references stay together.
 
-9. **Tool Call Lifecycle**
-   - Proposed → Parsed → Validated → Executed → Observed → Answered.
+9. **Prompt-Scaling Decision Matrix**
+   - One-off prompt, custom agent, subagent, and skill each solve a different loading problem.
 
-10. **From Prompt Engineering to Harness Engineering**
-    - Prompt loading strategy, runtime enforcement, and bridge to Lesson 2.1 / Lesson 3.
+10. **Prompt Loading Strategy**
+    - Write, package, split, load, then orchestrate in Lesson 3.
 
 ---
 
@@ -1764,8 +1540,8 @@ Chinese subtitle: 从递纸条理解 AI 如何工作
 
 ## Lesson 2
 
-**Harness Engineering: Instructions, Agents, Skills, and Tool Runtime**  
-Chinese subtitle: 让模型变成可用系统的软件层
+**Custom Prompts at Scale: Custom Agents, Subagents, and Skills**
+Chinese subtitle: 复用、拆分、按需加载提示词
 
 ## Lesson 3
 
@@ -1777,5 +1553,5 @@ Chinese subtitle: 从单次问答走向工程化 AI 协作
 # Final Course Logic
 
 > Lesson 1 helps learners understand that AI is not magic. It reads and writes limited context.  
-> Lesson 2 helps learners understand that real AI products need Harness to manage context, tools, and execution.  
+> Lesson 2 helps learners understand how custom prompts scale through custom agents, subagents, and skills.
 > Lesson 3 helps learners understand that complex engineering work needs subagents, workflows, teammates, and loops instead of merely longer prompts.
