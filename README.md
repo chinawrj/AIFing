@@ -85,7 +85,7 @@
 - Lesson 1 Advanced Add-on (`1.1`) adds a 6-slide deck on visible paper, prompt cache, cache write/read, and stable-prefix design.
 - Lesson 2 has a 10-slide PowerPoint deck on scaling custom prompts through custom agents, subagents, and skills.
 - Lesson 2 Advanced Add-on (`2.1`) adds a 6-slide deck on harness objects and runtime contracts.
-- Lesson 3 has a 10-slide PowerPoint deck on subagents, workflows, teammate mode, boundaries, and loop coding.
+- Lesson 3 has an 11-slide PowerPoint deck on systematic subagent orchestration, workflow gates, compaction strategy, and Goodhart risk control.
 - Later lessons can follow the same directory pattern under `docs/lesson-04/`, `docs/lesson-05/`, etc.
 
 ## License

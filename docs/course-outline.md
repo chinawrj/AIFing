@@ -817,7 +817,7 @@ Orchestrate multiple papers in Lesson 3
 Lesson boundary:
 
 - Lesson 2.1 covers advanced runtime objects and contracts.
-- Lesson 3 covers subagent workflows, teammates, handoffs, and loop coding.
+- Lesson 3 covers systematic subagent orchestration, workflow gates, compaction strategy, and Goodhart risk control.
 
 ---
 
@@ -857,9 +857,9 @@ Deliverables:
 
 ---
 
-# Lesson 3: Agentic Workflows: Subagents, Teammates, and Loop Coding
+# Lesson 3: Systematic Subagent Orchestration
 
-**Subtitle:** From single-turn Q&A to engineering-grade AI collaboration
+**Subtitle:** From longer prompts to managed multi-paper work
 
 ## Lesson Goal
 
@@ -867,528 +867,289 @@ Lesson 3 builds on the first two lessons:
 
 - The model reads and writes paper.
 - Harness manages paper, tools, and execution.
+- Lesson 2 showed how custom prompts become reusable agents and skills.
 
 Now the question is:
 
-> When a task is too large, complex, or noisy for one paper, how do we split work across agents, workflows, teammates, and feedback loops?
+> When a task needs several papers, who decides which paper works next, what each paper may see, and which result is allowed to continue?
 
 Learners should understand:
 
-- Why subagents are useful.
-- How subagents reduce context pollution and improve specialization.
-- How workflows turn AI work into stable processes.
-- How teammate mode differs from chatbot mode.
-- Why loop coding is feedback-driven iteration, not one-shot generation.
+- Three ways to call subagents systematically: AI-led temporary team, prepared custom agent files, and script-orchestrated workflow.
+- Subagents are not only prompt reuse; they also give bounded work its own paper.
+- Workflow scripts move planning authority from the main AI into deterministic JavaScript control flow.
+- `schema` checks output shape, verifier agents check truth, and workflow branches decide what happens next.
+- Proactive subagent split usually beats reactive compacting when the task can be divided into weakly coupled papers.
+- Workflow gates can reduce Goodhart side effects caused by over-optimizing custom agent behavior.
 
 ---
 
-## 3.1 Limits of a Single Agent
+## 3.1 Why Orchestration Exists
 
 ### Core idea
 
-One agent handling everything may cause:
+A complex task can exceed one paper because it mixes:
 
-- Context pollution.
-- Mixed task goals.
-- Too many tool records.
-- Search, reading, debugging, and coding interfering with each other.
-- One role trying to act as architect, implementer, tester, and security reviewer.
-- Important details lost during compacting.
+- requirements;
+- research notes;
+- implementation details;
+- tool results;
+- failed attempts;
+- review findings;
+- final synthesis.
+
+Reactive compacting compresses the current paper after it is already crowded. Orchestration is proactive: split the problem into smaller papers before local context becomes the bottleneck.
 
 ### Paper Model explanation
 
-> A single agent is like everyone writing everything on the same sheet of paper: logs, plans, code snippets, errors, requirements, and test outputs all mix together.
+> A hard math or physics problem may need several scratch papers. The better strategy is not always to keep erasing one page; assign each weakly coupled subproblem its own page and collect only the useful result.
 
-### Suggested visual
+### Suggested visuals
 
-**Single Agent Context Pollution**
-
-```text
-search logs
-code snippets
-errors
-plans
-requirements
-test outputs
-```
-
-Side labels:
-
-```text
-Hard to focus
-Hard to preserve constraints
-Hard to scale
-```
+**Systematic Subagent Orchestration**
+**Complex Tasks Need Managed Papers**
 
 ---
 
-## 3.2 Subagent: Give a Local Task Its Own Paper
+## 3.2 Way 1: Let AI Form the Team
 
 ### Core idea
 
-A subagent is a specialized assistant with an independent context.
+The user gives a goal and asks the main AI to organize subagents as needed.
 
-> The main agent gives a local task to a specialized subagent. The subagent works on its own paper and returns only a summary to the main paper.
+This is the most universal pattern:
 
-### Key value
+- no prepared custom agent files are required;
+- the main AI chooses roles at runtime;
+- works in any tool that supports subagents;
+- useful for review, research, comparison, and cleanup tasks.
 
-- **Context isolation**: noisy research and logs do not pollute the main context.
-- **Specialization**: different subagents can have different roles, rules, and tools.
-- **Parallelization**: independent tasks can run in parallel.
-- **Permission control**: different subagents can have different permissions.
-- **Cost control**: simple tasks can use lighter models; complex tasks can use stronger models.
+### Required gates
 
-### Suggested visual
+Ad hoc teams are fast, but they need explicit quality controls:
 
-**Main Agent + Subagents**
-
-```text
-Main Agent
-   ├── Research Subagent
-   ├── Code Review Subagent
-   ├── Test Writer Subagent
-   └── Security Subagent
-```
-
-Each subagent has its own small paper, and returns a summary.
-
----
-
-## 3.3 When to Use Subagents
-
-### Use subagents for:
-
-1. **Large reading / search**
-   - Search a codebase.
-   - Read documentation.
-   - Compare multiple options.
-
-2. **Parallel reviews**
-   - Security review.
-   - Performance review.
-   - Maintainability review.
-   - Test coverage review.
-
-3. **Specialized roles**
-   - Database migration reviewer.
-   - API design reviewer.
-   - Accessibility checker.
-   - DevOps deployment checker.
-
-4. **Risk isolation**
-   - Read-only subagent.
-   - No file write access.
-   - Restricted directory access.
-   - Safe command-only execution.
-
-### Keep one owner, or use sequential handoffs, when:
-
-- The task is very small.
-- Every step needs the latest version of the same changing state.
-- The work cannot expose stable intermediate artifacts or checkpoints.
-- Merging and synchronizing results costs more than the extra context capacity saves.
-- The main agent can finish before compaction becomes a material risk.
-
-Do not use "large shared context" or "tight coupling" as automatic rejection
-rules. A forked subagent can inherit the shared starting context. The practical
-question is whether branches can make useful progress before they must
-synchronize again.
-
-### Suggested visual
-
-**When to Use Subagents**
-
-```text
-Use Subagent
-- noisy research
-- specialized review
-- parallel checks
-- isolated permissions
-
-Stay Main Agent
-- small task
-- constantly changing shared state
-- simple edit
-```
-
----
-
-## 3.4 Workflow: Passing Papers Through Stable Steps
-
-### Core idea
-
-Workflow means splitting AI work into stable steps with defined input, output, owner, and gates.
-
-Example software workflow:
-
-```text
-Requirement
-  ↓
-Clarify
-  ↓
-Plan
-  ↓
-Implement
-  ↓
-Test
-  ↓
-Review
-  ↓
-Fix
-  ↓
-Document
-```
+- short brief for each subagent;
+- evidence requirements;
+- fixed return format;
+- main-agent merge gate;
+- human checkpoint for ambiguous or high-risk results.
 
 ### Paper Model explanation
 
-> Workflow is a rule for passing papers across steps. Each step writes a clear artifact onto the paper, then passes it forward.
+> The main paper acts like the exam sheet. Temporary subagent papers solve bounded subproblems, then return concise evidence instead of dumping the whole scratch process back.
 
-### Suggested visual
+### Suggested visuals
 
-**AI Coding Workflow Pipeline**
-
-```text
-Spec → Plan → Implement → Run → Verify → Review → Merge
-```
+**Let AI Form the Team**
+**Ad Hoc Teams Are Fast, But Need Gates**
 
 ---
 
-## 3.5 Workflow Design Principles
-
-A good AI workflow has:
-
-1. **Clear goal per step**
-   - Not “finish everything.”
-   - Instead: “produce the design plan first.”
-
-2. **Clear input per step**
-   - Requirement doc.
-   - Code scope.
-   - Error logs.
-   - Test result.
-
-3. **Clear output per step**
-   - Plan.
-   - Diff.
-   - Test result.
-   - Review report.
-
-4. **Gates between steps**
-   - Human confirmation.
-   - Automated tests.
-   - Lint.
-   - Typecheck.
-   - Policy gate.
-
-5. **Fallback strategy**
-   - Re-plan.
-   - Reduce scope.
-   - Ask a human.
-   - Roll back.
-
-### Suggested visual
-
-**Workflow Contract**
-
-Each node includes:
-
-```text
-Input
-Action
-Output
-Gate
-```
-
----
-
-## 3.6 Teammate: AI Is Not a Button
+## 3.3 Way 2: Main AI Calls Prepared Agent Files
 
 ### Core idea
 
-Chatbot:
+Prepared custom agent files package stable roles so the main AI can call known workers:
 
 ```text
-Q → A
-Q → A
-Q → A
+security-reviewer.md
+api-designer.md
+test-writer.md
+docs-editor.md
 ```
 
-Teammate:
+The main AI still holds the plan, but each worker has a reusable role profile, tool boundary, and output habit.
 
-```text
-Goal
-Plan
-Execute
-Verify
-Report
-Iterate
+### When this is better than ad hoc teams
+
+- The same role is used repeatedly.
+- The team needs consistent standards.
+- Permissions should be scoped by role.
+- Reviews must follow a known checklist.
+- Different subagents should use different models or effort levels.
+
+Some harnesses also support teammate-style communication between agents. Treat that as bounded coordination, not unlimited shared memory: the course idea remains that each worker has its own paper and returns controlled information.
+
+### Suggested visuals
+
+**Main AI Calls Prepared Agent Files**
+**Prepared Agents Can Work Like Teammates**
+
+---
+
+## 3.4 Way 3: A Script Holds the Plan
+
+### Core idea
+
+Dynamic workflow moves orchestration into JavaScript:
+
+```js
+export const meta = {
+  name: 'build-and-check',
+  description: 'Generate and independently verify results',
+  phases: [
+    { title: 'Build', detail: 'Create candidates' },
+    { title: 'Verify', detail: 'Check evidence' },
+  ],
+}
 ```
 
-A teammate:
+The script can call:
 
-- Understands goals.
-- Breaks tasks into steps.
-- Explains plans.
-- Requests confirmation at key points.
-- Reads project context.
-- Uses tools.
-- Reports progress.
-- Fixes based on tests and errors.
-- Produces deliverables.
+- `agent(prompt, options)` to launch a subagent;
+- `parallel(() => agent(...))` for fan-out plus a barrier;
+- `pipeline(items, build, verify)` for item-by-item staged flow;
+- `phase()` and `log()` for progress display;
+- global `args` for workflow inputs;
+- `resumeFromRunId` to reuse unchanged completed agent calls.
+
+Important distinction:
+
+> `phases` group progress in the UI. They are not execution barriers and not validation gates.
 
 ### Paper Model explanation
 
-> A teammate does not only answer on the paper. It continuously maintains the paper: goals, plan, risks, next steps, and tool observations.
+> In ad hoc mode, the main AI is the coordinator. In workflow mode, the script is the director. Each subagent follows the script like an actor following a scene order.
 
 ### Suggested visual
 
-**Chatbot vs Teammate**
+**A Script Holds the Plan**
 
 ---
 
-## 3.7 Collaboration Boundaries
+## 3.5 Workflow Gates: Format, Truth, Branch
 
 ### Core idea
 
-An AI teammate is not full autonomy.
+There is no built-in magic field like `result.passed`. A reliable gate is built from three layers:
 
-It needs boundaries:
+1. `schema` defines what the result must look like.
+2. An independent verifier agent checks whether the result is true.
+3. JavaScript branches on `pass`, `fail`, or `unverified`.
 
-- Which files can be modified.
-- Which commands can run.
-- Which actions need confirmation.
-- Which conclusions require evidence.
-- Which tasks must remain human decisions.
-- When to stop instead of retrying blindly.
+Example structure:
 
-### Suggested engineering rules
+```js
+const verdict = await agent('Independently verify this result', {
+  label: 'verifier',
+  phase: 'Verify',
+  schema: VERDICT,
+})
 
-```text
-AI can:
-- inspect code
-- propose plan
-- edit scoped files
-- run tests
-- summarize changes
+if (!verdict || verdict.status === 'unverified') {
+  return { status: 'unverified', candidate }
+}
+
+if (verdict.status === 'fail') {
+  return { status: 'fail', candidate, verdict }
+}
+
+return { status: 'pass', candidate, verdict }
 ```
 
-```text
-AI must ask before:
-- deleting files
-- changing architecture
-- modifying production config
-- running destructive commands
-- touching secrets
-```
+Teaching distinction:
+
+- `schema` is a format gate: fields, types, enum values.
+- verifier is a semantic gate: evidence, tests, source checks.
+- branch logic is the control gate: what the workflow permits next.
+
+If verification does not return a verdict, classify the result as `unverified`. Do not silently treat it as pass.
 
 ### Suggested visual
 
-**Autonomy Boundaries**
-
-```text
-Allowed automatically
-Needs approval
-Forbidden
-```
+**Workflow Gates Need Two Checks**
 
 ---
 
-## 3.8 Loop Coding
+## 3.6 Compaction Strategy: Reactive vs Proactive
 
 ### Core idea
 
-AI coding should not be understood as:
+When one person needs multiple papers:
 
 ```text
-Prompt → Code
+Paper 1 -> compact -> Paper 2 -> compact -> Paper 3
 ```
 
-It should be understood as:
+the work depends on compressed handoffs. Important detail may be lost.
+
+For weakly coupled work, a stronger pattern is:
 
 ```text
-Prompt → Code → Run → Observe → Fix → Run again → Verify
+Main paper
+  ├── Research paper
+  ├── Build paper
+  ├── Test paper
+  └── Review paper
 ```
 
-### Paper Model explanation
-
-Each loop:
-
-1. AI writes a code-change plan on the paper.
-2. Harness / tools execute file changes.
-3. Harness runs tests or commands.
-4. Error logs are written back to the paper.
-5. AI reads the error logs.
-6. AI modifies the code.
-7. The loop runs again.
+Each subagent should be scoped so it can finish before local compaction becomes necessary. The main paper collects bounded results and evidence.
 
 ### Key phrase
 
-> AI coding is not one-shot generation. It is feedback-driven iteration.
+> Compacting is passive compression. Subagent split is active task design.
 
 ### Suggested visual
 
-**Loop Coding Cycle**
-
-```text
-Plan
-  ↓
-Edit
-  ↓
-Run
-  ↓
-Observe
-  ↓
-Fix
-  ↓
-Verify
-  ↺
-```
+**Multiple Papers Beat Reactive Compaction**
 
 ---
 
-## 3.9 Loop Coding Engineering Practice
-
-Recommended flow:
-
-1. **Let AI read the project first**
-   - Understand directory structure.
-   - Find relevant files.
-   - Do not modify immediately.
-
-2. **Ask AI to write a plan first**
-   - Which files will change.
-   - Why they will change.
-   - What risks exist.
-   - How to verify.
-
-3. **Small-step editing**
-   - One local goal per step.
-   - Avoid broad refactoring.
-
-4. **Automated verification**
-   - Run tests.
-   - Typecheck.
-   - Lint.
-   - Build.
-   - Smoke test.
-
-5. **Write errors back into context**
-   - Do not just say “it failed.”
-   - Provide logs, commands, and environment information.
-
-6. **Loop-based repair**
-   - Let AI fix based on real errors.
-   - Do not let AI guess.
-
-7. **Final review**
-   - Diff summary.
-   - Risk list.
-   - Test evidence.
-   - Follow-up tasks.
-
-### Suggested visual
-
-**Practical Loop Coding Checklist**
-
----
-
-## 3.10 Hooks / Automation Control Points
+## 3.7 Goodhart's Law and Custom Agent Side Effects
 
 ### Core idea
 
-Hooks are deterministic automation points in the AI workflow.
+Goodhart's Law says that when a measure becomes a target, it stops being a good measure.
 
-### Course explanation
-
-> Prompt asks the model to do something. Hook makes the software system ensure something happens.
-
-Examples:
-
-- Automatically format code after file edits.
-- Intercept dangerous commands.
-- Write failed test logs back into context.
-- Re-inject key context after compacting.
-- Generate summary at task completion.
-
-### Suggested visual
-
-**Hook Points in Loop**
+In AI agent design, the risk is:
 
 ```text
-Before Tool Use
-After File Edit
-After Test Run
-On Error
-On Compact
-On Finish
+Intent: produce high-quality work
+Proxy target: always follow the custom agent checklist
+Failure mode: optimized-looking output that misses the real task
 ```
+
+Custom agent files can create this problem when they over-specify style, role behavior, or scoring rules. The agent may optimize the visible target instead of the human intent.
+
+### Controls
+
+- Separate worker and verifier roles.
+- Require evidence, not self-confidence.
+- Use schema for structure, not for truth.
+- Add `unverified` as an explicit outcome.
+- Use workflow branches to stop, retry, or escalate instead of accepting polished output.
+- Keep human checkpoints for ambiguous business judgment.
+
+### Suggested visuals
+
+**Goodhart's Law: Proxy Targets Can Backfire**
+**Workflow Keeps Agents Honest**
 
 ---
 
-## 3.11 End-to-End Example: AI Code Change
-
-### Task
-
-```text
-Add an API endpoint to an existing project, with tests and documentation.
-```
-
-### Workflow
-
-```text
-1. Main agent reads requirement
-2. Research subagent explores relevant files
-3. Main agent creates implementation plan
-4. Human confirms scope
-5. Implementation agent edits code
-6. Test agent writes tests
-7. Harness runs tests
-8. Error logs return to context
-9. AI fixes failures
-10. Review subagent reviews diff
-11. Main agent summarizes final result
-```
-
-### Teaching points
-
-- Which content stays on the main paper.
-- Which content stays on subagent papers.
-- Which actions are written by the model.
-- Which actions are executed by Harness.
-- Which steps require human confirmation.
-- Which verification should be automated.
-
-### Suggested visual
-
-**End-to-End Agentic Coding System**
-
----
-
-## 3.12 From Q&A to Engineering-Grade AI Collaboration
+## 3.8 From Longer Prompt to Better Organization
 
 ### Core idea
 
-Evolution:
+Progression:
 
 ```text
-Chatbot
+Longer prompt
   ↓
-Single Agent
+Reusable custom agent
   ↓
-Custom Agent
+Scoped subagent paper
   ↓
-Subagents
+Prepared agent team
   ↓
-Workflow
+Workflow script
   ↓
-AI Teammate
-  ↓
-Loop Coding System
+Verified result
 ```
 
 ### Key phrase
 
-> When tasks become complex, do not just write longer prompts. Design better context isolation, tool boundaries, execution workflows, and feedback loops.
+> For complex work, the main design question is not "how do I write a longer prompt?" It is "who holds the plan, which paper owns each subproblem, and what gate lets the result move forward?"
 
 ---
 
@@ -1416,9 +1177,9 @@ Custom Agent / Subagent / Skill / Prompt Loading Strategy
 
         ↓
 
-Lesson 3: Agentic Workflow
-Understand how to use multiple papers, roles, steps, and loops for complex work.
-Subagent / Workflow / Teammate / Loop Coding
+Lesson 3: Systematic Subagent Orchestration
+Understand who holds the plan, how papers split, and which gates let results continue.
+AI-led Team / Prepared Agent Files / Workflow Script / Verification Gates / Goodhart Risk
 ```
 
 ---
@@ -1499,35 +1260,38 @@ Subagent / Workflow / Teammate / Loop Coding
 
 ## Lesson 3 Images
 
-1. **Single Agent Context Pollution**
-   - One paper overloaded with logs, plans, code, errors, and tests.
+1. **Systematic Subagent Orchestration**
+   - Overview of the three ways to organize subagents.
 
-2. **Main Agent + Subagents**
-   - Main agent delegates tasks to specialized subagents.
+2. **Complex Tasks Need Managed Papers**
+   - One overloaded paper creates context noise, compaction risk, and merge confusion.
 
-3. **Subagent Context Isolation**
-   - Subagent uses an independent paper and returns summary.
+3. **Let AI Form the Team**
+   - The main AI creates temporary subagent roles at runtime.
 
-4. **When to Use Subagents**
-   - Good and bad use cases.
+4. **Ad Hoc Teams Are Fast, But Need Gates**
+   - Brief, evidence, return format, merge gate, and human checkpoint.
 
-5. **Workflow Pipeline**
-   - Spec → Plan → Implement → Test → Review → Fix → Document.
+5. **Main AI Calls Prepared Agent Files**
+   - Stable worker profiles package custom prompts, tools, and output habits.
 
-6. **Workflow Contract**
-   - Each step has Input / Action / Output / Gate.
+6. **Prepared Agents Can Work Like Teammates**
+   - Bounded communication can help coordination while preserving scoped papers.
 
-7. **Chatbot vs Teammate**
-   - Q&A mode vs collaboration mode.
+7. **A Script Holds the Plan**
+   - Dynamic workflow JavaScript orchestrates `agent()`, `parallel()`, `pipeline()`, `args`, and phases.
 
-8. **Autonomy Boundaries**
-   - Allowed automatically / Needs approval / Forbidden.
+8. **Workflow Gates Need Two Checks**
+   - `schema` validates format; verifier validates truth; branch logic decides pass/fail/unverified.
 
-9. **Loop Coding Cycle**
-   - Plan → Edit → Run → Observe → Fix → Verify.
+9. **Multiple Papers Beat Reactive Compaction**
+   - Proactive split avoids depending on repeated compressed handoffs.
 
-10. **End-to-End Agentic Coding System**
-   - Main agent, subagents, tools, tests, review, human checkpoint.
+10. **Goodhart's Law: Proxy Targets Can Backfire**
+   - A custom agent can optimize a proxy target while missing the human intent.
+
+11. **Workflow Keeps Agents Honest**
+   - Worker/verifier separation and explicit gates reduce polished but wrong results.
 
 ---
 
@@ -1545,8 +1309,8 @@ Chinese subtitle: 复用、拆分、按需加载提示词
 
 ## Lesson 3
 
-**Agentic Workflows: Subagents, Teammates, and Loop Coding**  
-Chinese subtitle: 从单次问答走向工程化 AI 协作
+**Systematic Subagent Orchestration: Teams, Agent Files, and Workflow Gates**
+Chinese subtitle: 从更长提示词走向多纸张编排
 
 ---
 
@@ -1554,4 +1318,4 @@ Chinese subtitle: 从单次问答走向工程化 AI 协作
 
 > Lesson 1 helps learners understand that AI is not magic. It reads and writes limited context.  
 > Lesson 2 helps learners understand how custom prompts scale through custom agents, subagents, and skills.
-> Lesson 3 helps learners understand that complex engineering work needs subagents, workflows, teammates, and loops instead of merely longer prompts.
+> Lesson 3 helps learners understand that complex engineering work needs planned subagent orchestration, verification gates, and Goodhart-aware controls instead of merely longer prompts.
